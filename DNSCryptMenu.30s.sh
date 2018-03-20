@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.5</bitbar.version>
+# <bitbar.version>1.0.6</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.5
+# version 1.0.6
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.5"
+dcmver="1.0.6"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -255,18 +255,22 @@ proxystatus=$(pgrep -U 0 "dnscrypt-proxy")
 
 service_resolvers=$(_service_resolvers "$service")
 
+SCRNAME=$(basename $0)
+
 _setdefault () {
 	networksetup -setdnsservers "$service" ${UDEFAULT} && _flush 2>/dev/null
 }
 
 if ! $proxy && [[ $(echo "$service_resolvers" | grep "$DNSCRYPT_PROXY_IPS") != "" ]] ; then
 	_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
-	_setdefault
+	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+	exit 0
 fi
 
 if [[ $service_resolvers == "None" ]] && [[ $UDEFAULTS ]] ; then
 	_notify "Detected Network DNS Reset!" "Resetting to Default DNS…"
-	_setdefault
+	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+	exit 0
 fi
 
 dnsip=$(dig whoami.akamai.net +short 2>/dev/null)
@@ -291,8 +295,6 @@ fi
 currentdns=$(cat "$currloc")
 currentdnsip=$(echo "$currentdns" | awk '{print $1}')
 currentdnsname=$(echo "$currentdns" | awk '{print $2}')
-
-SCRNAME=$(basename $0)
 
 DEFAULT=$(cat "$dfloc")
 
