@@ -3,9 +3,9 @@
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
-# <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCryptMenu/master/DNSCryptMenu.jpg</bitbar.image>
+# <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.url>https://github.com/JayBrown/DNSCryptMenu</bitbar.url>
+# <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 # <bitbar.version>1.0.1</bitbar.version>
 
 # DNSCrypt Menu
