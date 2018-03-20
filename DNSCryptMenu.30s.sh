@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# <bitbar.author.github>Jay Brown</bitbar.author.github>
+# <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCryptMenu/master/DNSCryptMenu.jpg</bitbar.image>
