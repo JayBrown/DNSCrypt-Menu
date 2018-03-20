@@ -6,6 +6,8 @@
 
 # DNSCrypt Menu <img src="https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/jb-img.png" height="20px"/>
 
+**DNSCrypt Menu is a [BitBar](https://github.com/matryer/bitbar) plugin to manage the [DNSCrypt](https://github.com/jedisct1/dnscrypt-proxy) proxy from the macOS menu bar.**
+
 **DNSCrypt Menu** also works as a tool to configure your default DNS setup.
 
 ## Functionality
@@ -19,7 +21,7 @@
 * display DNSCrypt servers as specified in the .toml configuration file
 * display CryptDNS information: owner, PID, version, executable path, config path
 
-![screengrab](https://github.com/JayBrown/DNSCrypt Menu/blob/master/img/screengrab.png)
+![screengrab](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/screengrab.png)
 
 ## Installation
 * install `dnscrypt-proxy` version 2, e.g. with **[Homebrew](https://brew.sh)**: `brew install dnscrypt-proxy`
