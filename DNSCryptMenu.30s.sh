@@ -6,10 +6,10 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCryptMenu/master/DNSCryptMenu.jpg</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCryptMenu</bitbar.url>
-# <bitbar.version>1.0</bitbar.version>
+# <bitbar.version>1.0.1</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0
+# version 1.0.1
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
@@ -88,6 +88,9 @@ if ! [[ $TOML ]] ; then
 	echo "Refresh… | refresh=true"
 	exit 0
 fi
+
+dcmver="1.0.1"
+dcmvadd=""
 
 service=$(networksetup -listnetworkserviceorder | grep -B1 "$interface" | head -1 | awk -F")" '{print substr($0, index($0,$2))}' | sed 's/^ //')
 
@@ -616,7 +619,7 @@ if [[ $servers ]] ; then
 		echo "--$server"
 	done < <(echo -e "$servers")
 else
-	echo "All Servers Available"
+	echo "All DNSCrypt Servers Used"
 fi
 echo "DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 
@@ -663,16 +666,6 @@ _serviceinfo () {
 		echo "--→ $tomlashort | terminal=false bash=/usr/bin/open param1=\"$tomlaparent\""
 	fi
 	echo "--Edit… | terminal=false bash=/usr/bin/open param1=\"$TOML\""
-	echo "-----"
-	echo "--BitBar Plugin | size=11 color=gray"
-	echo "--$scrshort | terminal=false bash=/usr/bin/open param1=\"$scrparent\""
-	if [[ -h $scrpath ]] ; then
-		scrapath=$(_abspath "$scrpath")
-		scrashort="${scrapath/#$HOME/~}"
-		scraparent=$(dirname "$scrapath")
-		echo "--→ $scrashort | terminal=false bash=/usr/bin/open param1=\"$scraparent\""
-	fi
-	echo "--Edit… | terminal=false bash=/usr/bin/open param1=\"$scrpath\""
 }
 
 echo "---"
@@ -687,4 +680,17 @@ fi
 
 echo "---"
 
+echo "DNSCrypt Menu"
+echo "--$scrshort | terminal=false bash=/usr/bin/open param1=\"$scrparent\""
+if [[ -h $scrpath ]] ; then
+	scrapath=$(_abspath "$scrpath")
+	scrashort="${scrapath/#$HOME/~}"
+	scraparent=$(dirname "$scrapath")
+	echo "--→ $scrashort | terminal=false bash=/usr/bin/open param1=\"$scraparent\""
+fi
+echo "--Edit… | terminal=false bash=/usr/bin/open param1=\"$scrpath\""
+echo "-----"
+echo "--Version $dcmver$dcmvadd"
+echo "-----"
+echo "--GitHub Repository… | href=https://github.com/JayBrown/DNSCrypt-Menu"
 echo "Refresh… | refresh=true"
