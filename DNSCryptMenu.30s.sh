@@ -6,10 +6,10 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.1</bitbar.version>
+# <bitbar.version>1.0.2</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.1
+# version 1.0.2
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
@@ -89,8 +89,67 @@ if ! [[ $TOML ]] ; then
 	exit 0
 fi
 
-dcmver="1.0.1"
+dcmver="1.0.2"
 dcmvadd=""
+
+process="DNSCrypt Menu"
+account=$(id -un)
+
+_notify () {
+	if [[ $tn_status == "osa" ]] ; then
+			osascript &>/dev/null << EOT
+tell application "System Events"
+	display notification "$2" with title "$process [" & "$account" & "]" subtitle "$1"
+end tell
+EOT
+	elif [[ $tn_status == "tn-app-new" ]] || [[ $tn_status == "tn-app-old" ]] ; then
+		"$tn_loc/Contents/MacOS/terminal-notifier" \
+			-title "$process [$account]" \
+			-subtitle "$1" \
+			-message "$2" \
+			-appIcon "$icon_loc" \
+			>/dev/null
+	elif [[ $tn_status == "tn-cli" ]] ; then
+		"$tn" \
+			-title "$process [$account]" \
+			-subtitle "$1" \
+			-message "$2" \
+			-appIcon "$icon_loc" \
+			>/dev/null
+	fi
+}
+
+tn=$(which terminal-notifier 2>/dev/null)
+if [[ $tn == "" ]] || [[ $tn == *"not found" ]] ; then
+	tn_loc=$(mdfind "kMDItemCFBundleIdentifier == 'fr.julienxx.oss.terminal-notifier'" 2>/dev/null | awk 'NR==1')
+	if [[ $tn_loc == "" ]] ; then
+		tn_loc=$(mdfind "kMDItemCFBundleIdentifier == 'nl.superalloy.oss.terminal-notifier'" 2>/dev/null | awk 'NR==1')
+		if ! [[ $tn_loc ]] ; then
+			tn_status="osa"
+		else
+			tn_status="tn-app-old"
+		fi
+	else
+		tn_status="tn-app-new"
+	fi
+else
+	tn_vers=$("$tn" -help | head -1 | awk -F'[()]' '{print $2}' | awk -F. '{print $1"."$2}')
+	if (( $(echo "$tn_vers >= 1.8" | bc -l) )) && (( $(echo "$tn_vers < 2.0" | bc -l) )) ; then
+		tn_status="tn-cli"
+	else
+		tn_loc=$(mdfind "kMDItemCFBundleIdentifier == 'fr.julienxx.oss.terminal-notifier'" 2>/dev/null | awk 'NR==1')
+		if ! [[ $tn_loc ]] ; then
+			tn_loc=$(mdfind "kMDItemCFBundleIdentifier == 'nl.superalloy.oss.terminal-notifier'" 2>/dev/null | awk 'NR==1')
+			if ! [[ $tn_loc ]] ; then
+				tn_status="osa"
+			else
+				tn_status="tn-app-old"
+			fi
+		else
+			tn_status="tn-app-new"
+		fi
+	fi
+fi
 
 service=$(networksetup -listnetworkserviceorder | grep -B1 "$interface" | head -1 | awk -F")" '{print substr($0, index($0,$2))}' | sed 's/^ //')
 
@@ -201,12 +260,35 @@ else
 	UDEFAULTS=$(echo "$udfipss" | xargs)
 fi
 
-currentdns=$(cat "$currloc")
-currentdnsip=$(echo "$currentdns" | awk '{print $1}')
-currentdnsname=$(echo "$currentdns" | awk '{print $2}')
+[[ $localdns ]] && UDEFAULT="${UDEFAULT} $localdns"
 
 proxystatus=$(ps aux | /usr/bin/grep "/sbin/dnscrypt-proxy" | grep -v "/usr/bin/grep /sbin/dnscrypt-proxy")
 ! [[ $proxystatus ]] && proxy=false || proxy=true
+
+service_resolvers=$(_service_resolvers "$service")
+
+_setdefault () {
+	networksetup -setdnsservers "$service" ${UDEFAULT} && _flush 2>/dev/null
+}
+
+if ! $proxy && [[ $service_resolvers == ${DNSCRYPT_PROXY_IPS} ]] ; then
+	_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
+	_setdefault
+fi
+
+dnsip=$(dig whoami.akamai.net +short 2>/dev/null)
+if [[ $(echo "$dnsip" | wc -l | xargs) -gt 1 ]] ; then
+	if [[ $theme == "classic" ]] ; then
+		echo "| templateImage=$ERROR_ICON dropdown=false"
+	elif [[ $theme == "emoji" ]] ; then
+		echo "$ERROR_ICON"
+	fi
+	echo "---"
+	echo "No Connection Available | color=red"
+	echo "---"
+	echo "Refresh… | refresh=true"
+	exit 0
+fi
 
 if [[ $1 == "default" ]] ; then
 	if [[ $2 == "dcp" ]] ; then
@@ -216,6 +298,10 @@ if [[ $1 == "default" ]] ; then
 	fi
 	exit 0
 fi
+
+currentdns=$(cat "$currloc")
+currentdnsip=$(echo "$currentdns" | awk '{print $1}')
+currentdnsname=$(echo "$currentdns" | awk '{print $2}')
 
 SCRNAME=$(basename $0)
 
@@ -261,7 +347,6 @@ EOT
 		brewstatus=$(brew help 2>/dev/null)
 		if [[ $brewstatus ]] && $brewed ; then
 			if [[ $2 == "stop" ]] ; then
-				[[ $localdns ]] && UDEFAULT="${UDEFAULT} $localdns"
 				echo "$rootpw" | sudo -S 2>/dev/null brew services stop dnscrypt-proxy \
 					&& sudo -k && rootpw="" \
 					&& networksetup -setdnsservers "$service" ${UDEFAULT} \
@@ -269,15 +354,21 @@ EOT
 					&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 			elif [[ $2 == "start" ]] ; then
 				echo "$rootpw" | sudo -S 2>/dev/null brew services start dnscrypt-proxy \
-					&& sudo -k && rootpw="" \
-					&& networksetup -setdnsservers "$service" ${DEFAULT} \
-					&& _flush 2>/dev/null \
-					&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+					&& sudo -k && rootpw=""
+				sleep 1
+				proxystatus=$(ps aux | /usr/bin/grep "/sbin/dnscrypt-proxy" | grep -v "/usr/bin/grep /sbin/dnscrypt-proxy")
+				if [[ $proxystatus ]] ; then
+					networksetup -setdnsservers "$service" ${DEFAULT} \
+						&& _flush 2>/dev/null \
+						&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+				else
+					_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
+					_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+				fi
 			fi
 		else
 			if [[ $dcpver ]] ; then
 				if [[ $2 == "stop" ]] ; then
-					[[ $localdns ]] && UDEFAULT="${UDEFAULT} $localdns"
 					echo "$rootpw" | sudo -S 2>/dev/null dnscrypt-proxy -service stop \
 						&& sudo -k && rootpw="" \
 						networksetup -setdnsservers "$service" ${UDEFAULT} \
@@ -285,10 +376,17 @@ EOT
 						&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 				elif [[ $2 == "start" ]] ; then
 					echo "$rootpw" | sudo -S 2>/dev/null dnscrypt-proxy -service start \
-						&& sudo -k && rootpw="" \
-						&& networksetup -setdnsservers "$service" ${DEFAULT} \
-						&& _flush 2>/dev/null \
-						&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+						&& sudo -k && rootpw=""
+					sleep 1
+					proxystatus=$(ps aux | /usr/bin/grep "/sbin/dnscrypt-proxy" | grep -v "/usr/bin/grep /sbin/dnscrypt-proxy")
+					if [[ $proxystatus ]] ; then
+						networksetup -setdnsservers "$service" ${DEFAULT} \
+							&& _flush 2>/dev/null \
+							&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+					else
+						_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
+						_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
+					fi
 				fi
 			fi
 		fi
@@ -338,7 +436,6 @@ _displayname () {
 	fi
 }
 
-service_resolvers=$(_service_resolvers "$service")
 current_resolvers=$(_current_resolvers)
 setting=$(_displayname "$current_resolvers")
 
@@ -453,7 +550,6 @@ _dnsinfo () {
 		done
 	fi
 	echo "-----"
-	dnsip=$(dig whoami.akamai.net +short 2>/dev/null)
 	if [[ "$dnsip" == "" ]] ; then
 		dnsip="Unknown IP"
 		dnsname="Unknown Hostname"
@@ -586,7 +682,6 @@ if $proxy ; then
 			echo "Other DNS | checked=true"
 			_dnsinfo
 		else
-			[[ $localdns ]] && UDEFAULT="${UDEFAULT} $localdns"
 			echo "Default DNS | terminal=false refresh=true bash=$0 param1='${UDEFAULT}'"
 			_dfmenu
 			echo "Other DNS"
