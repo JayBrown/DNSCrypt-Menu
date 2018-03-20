@@ -473,7 +473,7 @@ echo "---"
 
 nstat=$(netstat -nr 2>/dev/null | awk '/^0\/1/ {print $6}')
 
-if [[ "$localdns" == "" ]] ; then
+if ! [[ $localdns ]] ; then
 	localdns="None"
 	ldnsname=""
 else
@@ -485,7 +485,7 @@ _dnsinfo () {
 	echo "--Service | size=11 color=gray"
 	echo "--${service}"
 	echo "-----"
-	if [[ $nstat != "" ]] ; then
+	if [[ $nstat ]] ; then
 		echo "--Devices | size=11 color=gray"
 		echo "--$interface $nstat"
 	else
@@ -494,7 +494,7 @@ _dnsinfo () {
 	fi
 	echo "-----"
 	echo "--Current DNS Resolvers | size=11 color=gray"
-	if [[ ${current_resolvers} == "" ]] ; then
+	if ! [[ ${current_resolvers} ]] ; then
 		echo "--None"
 	else
 		for cres in ${current_resolvers}
@@ -521,7 +521,7 @@ _dnsinfo () {
 		done
 	fi
 	echo "-----"
-	if [[ "$dnsip" == "" ]] ; then
+	if ! [[ $dnsip ]] ; then
 		dnsip="Unknown IP"
 		dnsname="Unknown Hostname"
 	else
@@ -529,9 +529,7 @@ _dnsinfo () {
 			dnsname=$(curl -sL "https://ipinfo.io/$dnsip/hostname" 2>/dev/null)
 			if [[ $(echo "$dnsname" | grep "requests") != "" ]] || [[ $dnsname == "" ]] ; then
 				dnsname=$(curl -sL "https://www.robtex.com/ip/$dnsip.html" 2>/dev/null | grep -m1 "The PTR is" | awk -F"The PTR is " '{print $2}' | awk -F". " '{print $1}')
-				if [[ $dnsname == "" ]] ; then
-					dnsname="$dnsname"
-				fi
+				! [[ $dnsname == "" ]] && dnsname="Unknown Hostname"
 			fi
 			echo "$dnsip $dnsname" > "$currloc"
 		else
