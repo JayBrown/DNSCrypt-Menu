@@ -1,6 +1,6 @@
 ![bbdnsc-platform-macos](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
 ![bbdnsc-code-shell](https://img.shields.io/badge/code-shell-yellow.svg)
-[![bbdnsc-prereq-dnsc](https://img.shields.io/badge/prerequisite-dnscrypt--proxy%202.x-brightgreen.svg)](https://github.com/jedisct1/dnscrypt-proxy)
+[![bbdnsc-prereq-dnsc](https://img.shields.io/badge/prerequisite-dnscrypt--proxy%202.x-green.svg)](https://github.com/jedisct1/dnscrypt-proxy)
 [![bbdnsc-prereq-bbar](https://img.shields.io/badge/prerequisite-BitBar%202.0%20beta10-brightgreen.svg)](https://github.com/matryer/bitbar)
 [![bbdnsc-license](http://img.shields.io/badge/license-MIT+-blue.svg)](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/LICENSE)
 
