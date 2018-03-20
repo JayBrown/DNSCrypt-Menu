@@ -1,7 +1,7 @@
 ![bbdnsc-platform-macos](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
 ![bbdnsc-code-shell](https://img.shields.io/badge/code-shell-yellow.svg)
-[![bbdnsc-prereq-dnsc](https://img.shields.io/badge/prerequisite-dnscrypt-proxy%20v2-brightgreen.svg)](https://github.com/jedisct1/dnscrypt-proxy)
-[![bbdnsc-prereq-bitbar](https://img.shields.io/badge/prerequisite-BitBar%202.0%20beta10-brightgreen.svg)](https://github.com/matryer/bitbar)
+[![bbdnsc-prereq-dnsc](https://img.shields.io/badge/prerequisite-dnscrypt--proxy%202.x-brightgreen.svg)](https://github.com/jedisct1/dnscrypt-proxy)
+[![bbdnsc-prereq-bbar](https://img.shields.io/badge/prerequisite-BitBar%202.0%20beta10-brightgreen.svg)](https://github.com/matryer/bitbar)
 [![bbdnsc-license](http://img.shields.io/badge/license-MIT+-blue.svg)](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/LICENSE)
 
 # DNSCrypt Menu <img src="https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/jb-img.png" height="20px"/>
@@ -13,13 +13,13 @@
 ## Functionality
 * start & stop the DNSCrypt service
 * switch between settings (_see below_; exception: **Other DNS**)
-* configure fallback DNS resolvers for dnscrypt
-* configure default DNS resolvers for non-DNSCrypt usage
-  * _Note_: at initial run the user's original DNS resolvers are saved to `$HOME/.config/dnscrypt/backup-*` followed by the service name, e.g. `backup-Wi-Fi`
+* configure additional resolvers for **DNSCrypt + Fallback** setting
+* configure resolvers for the **Default DNS** setting
+  * _Note_: at initial run the user's original DNS resolvers, as specified in the **Network** preference pane, are saved to `$HOME/.config/dnscrypt/backup-*`, followed by the service name, e.g. `backup-Wi-Fi`
 * display DNS information: services, devices, resolvers, IP, hostname, ping
-* display configured resolvers and local DNS
+* display configured resolvers and DNS on the LAN
 * display DNSCrypt servers as specified in the .toml configuration file
-* display CryptDNS information: owner, PID, version, executable path, config path
+* display CryptDNS executable and service information: owner, PID, version, executable path, config path
 
 ![screengrab](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/screengrab.png)
 
