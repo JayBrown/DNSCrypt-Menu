@@ -71,7 +71,6 @@ $HOME/etc/dnscrypt-proxy.toml
 /private/etc/dnscrypt-proxy.toml
 EOF
 
-### TEST
 while read -r TOML
 do
 	[[ -f $TOML ]] && break
