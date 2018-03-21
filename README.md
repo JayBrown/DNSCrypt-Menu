@@ -45,7 +45,7 @@ The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstratio
 * `cp local.lcars.DNSCryptLoopback.plist /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
 * `chmod 0644 /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
 * `launchctl load /Library/LaunchDaemons/local.lcars DNSCryptLoopback.plist`
-* Verify with: `netstat -nr | netstat -nr | grep "^127\.0\.0\..*lo0$"`
+* Verify with: `netstat -nr | grep "^127\.0\.0\..*lo0$"`
 
 ## Todo
 * Testing, lots of testing
