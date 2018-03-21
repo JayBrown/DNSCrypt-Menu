@@ -31,6 +31,7 @@
   * quit BitBar
 * clone the **DNSCrypt Menu** GitHub repository and symlink `DNSCryptMenu.30s.sh` to your BitBar plugins folder
 * launch BitBar
+* install **[terminal-notifier](https://github.com/julienXX/terminal-notifier)** (optional, recommended)
 
 ## Settings
 * **DNSCrypt**
