@@ -40,7 +40,7 @@
 * **Other DNS** — auto-setting for other DNS setups, e.g. when using a VPN
 
 ## Notes
-The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstration purposes. If you use a different proxy address than the default `127.0.0.1`, you need to map your alternate address for DNSCrypt to work. This particular daemon runs the command `/sbin/ifconfig lo0 alias 127.0.0.54`. Edit to your needs and install with:
+The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstration purposes. If you use a different proxy address than the default `127.0.0.1`, you need to map your alternate address at every system boot for DNSCrypt to work. This particular daemon runs the command `ifconfig lo0 alias 127.0.0.54`. Edit to your needs and install with:
 
 * `cp local.lcars.DNSCryptLoopback.plist /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
 * `chmod 0644 /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
