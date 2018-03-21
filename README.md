@@ -38,6 +38,9 @@
 * **DNSCrypt + Fallback** — DNSCrypt using fallback DNS, with Quad9 (9.9.9.9) as initial preset
 * **Default DNS** — DNS without DNSCrypt (no initial resolvers)
 * **Other DNS** — auto-setting for other DNS setups, e.g. when using a VPN
+* Stop and restart the plugin from external scripts with:
+  * stop: `mv $HOME/.config/dnscrypt/run $HOME/.config/dnscrypt/stop`
+  * restart: `mv $HOME/.config/dnscrypt/stop $HOME/.config/dnscrypt/run`
 
 ## Notes
 The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstration purposes. If you use a different proxy address than the default `127.0.0.1`, you need to map your alternate address at every system boot for DNSCrypt to work. This particular daemon runs the command `ifconfig lo0 alias 127.0.0.54`. Edit to your needs and install/enable using the following commands:
@@ -52,7 +55,6 @@ The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstratio
 * TOML parsing (blocklists, IPv6, log files etc.)
 * DNSCrypt icon for notifications using terminal-notifier
 * tweaking, e.g. `brew service restart` as fallback at service start fail
-* start/stop functionality
 
 ## Thank you
 Thank you to **[Frank Denis](https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher)** for kicking this off with his original plugin.

@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.6</bitbar.version>
+# <bitbar.version>1.0.7</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.6
+# version 1.0.7
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.6"
+dcmver="1.0.7"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -34,6 +34,31 @@ if [[ $theme == "classic" ]] ; then
 	ERROR_ICON="| dropdown=false templateImage=JVBERi0xLjMKJcTl8uXrp/Og0MTGCjQgMCBvYmoKPDwgL0xlbmd0aCA1IDAgUiAvRmlsdGVyIC9GbGF0ZURlY29kZSA+PgpzdHJlYW0KeAGlVE1vgzAMvedX+FwpaUIhIedO27nqYT+g0tZJsKnisL8/2yHY6XqYNAkFeGD7+fnjBie4gYcQYaYDr4kOjzfP57V+fd3BJ+xflgDvC+yf5wBPX2xtk0uxTz4amzI/BnQ2RncYutyDgJMCg49uGMcO42z2YCtqJrhCcPj9MBzAjtlxAHSbokseDRU4EYjxh8xgH0KiLCpobI4uIzoWcDVHsDxhvlsgBXaO/PQJlLkRECnVQGK+8fxFv7hCiTmRIRvKqYAUn7K7oy+goq/AVM2NxM8bqHRqwSKEfQyuOqH6KN76p0q0ASt5BFdFm4xK6Zo07ypaJeG+khy2eHe1ZrULM6lgLauYN2Kp/qnFEhLMrcAzMAnvInzA/ogtflnAuxGrr8/lolrlAU/lkRX8B08jPFVTz/C245GTfB/QUAZCo5kCMf+7XOLVrHJ18I3ybJIdz/g25K45z0daLzydNOy0Uqy8Co+ahrnM/BNOCs4DbSG681biJaW3ksd1cEY5Tj9np/mWCmVuZHN0cmVhbQplbmRvYmoKNSAwIG9iagozOTAKZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAzIDAgUiAvUmVzb3VyY2VzIDYgMCBSIC9Db250ZW50cyA0IDAgUiAvTWVkaWFCb3ggWzAgMCAxNiAxNl0KPj4KZW5kb2JqCjYgMCBvYmoKPDwgL1Byb2NTZXQgWyAvUERGIF0gL0NvbG9yU3BhY2UgPDwgL0NzMSAxMCAwIFIgPj4gL0V4dEdTdGF0ZSA8PCAvR3MxIDExIDAgUgo+PiAvWE9iamVjdCA8PCAvRm0xIDcgMCBSID4+ID4+CmVuZG9iago3IDAgb2JqCjw8IC9MZW5ndGggOCAwIFIgL0ZpbHRlciAvRmxhdGVEZWNvZGUgL1R5cGUgL1hPYmplY3QgL1N1YnR5cGUgL0Zvcm0gL0Zvcm1UeXBlCjEgL0JCb3ggWzAgMCAxNiAxNl0gL1Jlc291cmNlcyA5IDAgUiAvR3JvdXAgPDwgL1MgL1RyYW5zcGFyZW5jeSAvQ1MgMTIgMCBSCi9JIHRydWUgL0sgZmFsc2UgPj4gPj4Kc3RyZWFtCngBbVJLTsUwDNznFF4jYeI4H2fNCd7qHaACgVSQ4N1fwk4bpwukLlxnZjzj5Adu8AMRiJFa5QJf9pOxcRECwlQTNQaqkFAS1yxWbwuvf7sTgv7ZZ/wmg+bCyrmIKEdxKp+pL/zyEaIO8ZHRZpzgaAanr7gw2zXFDh8KEnVcOFDCFhNZttkz/1m4k/IL5UyaNSPpCgowpt4kD1tHR62fEsFRamhKeG8VdlTKRWIK2OrOQcEHjQUeo8xOjT0d6kPijOEeVojNvQYPto9Eh4QzZ7HCzo57UF9nb+3LtpixcBJdHkVkLlF0ixWlxSICovfigIK15q7XusMsw3lovYa9S2U2du2pNrvTqXnBEWGujcRFFNeRUs+Ugg10gLMvQn64qzmjCSflTENODhfjF53/896f4Ftfl7678bx/3+BuDazwCS+vDwrbYxxHeGzwnJCLuQWSo7J3N0sv1PPsLcYeVr0qu4Z3uP0BN5q6dAplbmRzdHJlYW0KZW5kb2JqCjggMCBvYmoKMzYzCmVuZG9iago5IDAgb2JqCjw8IC9Qcm9jU2V0IFsgL1BERiBdIC9Db2xvclNwYWNlIDw8IC9DczEgMTAgMCBSID4+ID4+CmVuZG9iagoxMSAwIG9iago8PCAvVHlwZSAvRXh0R1N0YXRlIC9jYSAwLjQ1ID4+CmVuZG9iagoxMyAwIG9iago8PCAvTGVuZ3RoIDE0IDAgUiAvTiAzIC9BbHRlcm5hdGUgL0RldmljZVJHQiAvRmlsdGVyIC9GbGF0ZURlY29kZSA+PgpzdHJlYW0KeAGFVd9v21QUPolvUqQWPyBYR4eKxa9VU1u5GxqtxgZJk6XtShal6dgqJOQ6N4mpGwfb6baqT3uBNwb8AUDZAw9IPCENBmJ72fbAtElThyqqSUh76MQPISbtBVXhu3ZiJ1PEXPX6yznfOec7517bRD1fabWaGVWIlquunc8klZOnFpSeTYrSs9RLA9Sr6U4tkcvNEi7BFffO6+EdigjL7ZHu/k72I796i9zRiSJPwG4VHX0Z+AxRzNRrtksUvwf7+Gm3BtzzHPDTNgQCqwKXfZwSeNHHJz1OIT8JjtAq6xWtCLwGPLzYZi+3YV8DGMiT4VVuG7oiZpGzrZJhcs/hL49xtzH/Dy6bdfTsXYNY+5yluWO4D4neK/ZUvok/17X0HPBLsF+vuUlhfwX4j/rSfAJ4H1H0qZJ9dN7nR19frRTeBt4Fe9FwpwtN+2p1MXscGLHR9SXrmMgjONd1ZxKzpBeA71b4tNhj6JGoyFNp4GHgwUp9qplfmnFW5oTdy7NamcwCI49kv6fN5IAHgD+0rbyoBc3SOjczohbyS1drbq6pQdqumllRC/0ymTtej8gpbbuVwpQfyw66dqEZyxZKxtHpJn+tZnpnEdrYBbueF9qQn93S7HQGGHnYP7w6L+YGHNtd1FJitqPAR+hERCNOFi1i1alKO6RQnjKUxL1GNjwlMsiEhcPLYTEiT9ISbN15OY/jx4SMshe9LaJRpTvHr3C/ybFYP1PZAfwfYrPsMBtnE6SwN9ib7AhLwTrBDgUKcm06FSrTfSj187xPdVQWOk5Q8vxAfSiIUc7Z7xr6zY/+hpqwSyv0I0/QMTRb7RMgBxNodTfSPqdraz/sDjzKBrv4zu2+a2t0/HHzjd2Lbcc2sG7GtsL42K+xLfxtUgI7YHqKlqHK8HbCCXgjHT1cAdMlDetv4FnQ2lLasaOl6vmB0CMmwT/IPszSueHQqv6i/qluqF+oF9TfO2qEGTumJH0qfSv9KH0nfS/9TIp0Wboi/SRdlb6RLgU5u++9nyXYe69fYRPdil1o1WufNSdTTsp75BfllPy8/LI8G7AUuV8ek6fkvfDsCfbNDP0dvRh0CrNqTbV7LfEEGDQPJQadBtfGVMWEq3QWWdufk6ZSNsjG2PQjp3ZcnOWWing6noonSInvi0/Ex+IzAreevPhe+CawpgP1/pMTMDo64G0sTCXIM+KdOnFWRfQKdJvQzV1+Bt8OokmrdtY2yhVX2a+qrykJfMq4Ml3VR4cVzTQVz+UoNne4vcKLoyS+gyKO6EHe+75Fdt0Mbe5bRIf/wjvrVmhbqBN97RD1vxrahvBOfOYzoosH9bq94uejSOQGkVM6sN/7HelL4t10t9F4gPdVzydEOx83Gv+uNxo7XyL/FtFl8z9ZAHF4CmVuZHN0cmVhbQplbmRvYmoKMTQgMCBvYmoKMTA0NwplbmRvYmoKMTIgMCBvYmoKWyAvSUNDQmFzZWQgMTMgMCBSIF0KZW5kb2JqCjE1IDAgb2JqCjw8IC9MZW5ndGggMTYgMCBSIC9OIDMgL0FsdGVybmF0ZSAvRGV2aWNlUkdCIC9GaWx0ZXIgL0ZsYXRlRGVjb2RlID4+CnN0cmVhbQp4AZ2Wd1RT2RaHz703vdASIiAl9Bp6CSDSO0gVBFGJSYBQAoaEJnZEBUYUESlWZFTAAUeHImNFFAuDgmLXCfIQUMbBUURF5d2MawnvrTXz3pr9x1nf2ee319ln733XugBQ/IIEwnRYAYA0oVgU7uvBXBITy8T3AhgQAQ5YAcDhZmYER/hEAtT8vT2ZmahIxrP27i6AZLvbLL9QJnPW/3+RIjdDJAYACkXVNjx+JhflApRTs8UZMv8EyvSVKTKGMTIWoQmirCLjxK9s9qfmK7vJmJcm5KEaWc4ZvDSejLtQ3pol4aOMBKFcmCXgZ6N8B2W9VEmaAOX3KNPT+JxMADAUmV/M5yahbIkyRRQZ7onyAgAIlMQ5vHIOi/k5aJ4AeKZn5IoEiUliphHXmGnl6Mhm+vGzU/liMSuUw03hiHhMz/S0DI4wF4Cvb5ZFASVZbZloke2tHO3tWdbmaPm/2d8eflP9Pch6+1XxJuzPnkGMnlnfbOysL70WAPYkWpsds76VVQC0bQZA5eGsT+8gAPIFALTenPMehmxeksTiDCcLi+zsbHMBn2suK+g3+5+Cb8q/hjn3mcvu+1Y7phc/gSNJFTNlReWmp6ZLRMzMDA6Xz2T99xD/48A5ac3Jwyycn8AX8YXoVVHolAmEiWi7hTyBWJAuZAqEf9Xhfxg2JwcZfp1rFGh1XwB9hTlQuEkHyG89AEMjAyRuP3oCfetbEDEKyL68aK2Rr3OPMnr+5/ofC1yKbuFMQSJT5vYMj2RyJaIsGaPfhGzBAhKQB3SgCjSBLjACLGANHIAzcAPeIACEgEgQA5YDLkgCaUAEskE+2AAKQTHYAXaDanAA1IF60AROgjZwBlwEV8ANcAsMgEdACobBSzAB3oFpCILwEBWiQaqQFqQPmULWEBtaCHlDQVA4FAPFQ4mQEJJA+dAmqBgqg6qhQ1A99CN0GroIXYP6oAfQIDQG/QF9hBGYAtNhDdgAtoDZsDscCEfCy+BEeBWcBxfA2+FKuBY+DrfCF+Eb8AAshV/CkwhAyAgD0UZYCBvxREKQWCQBESFrkSKkAqlFmpAOpBu5jUiRceQDBoehYZgYFsYZ44dZjOFiVmHWYkow1ZhjmFZMF+Y2ZhAzgfmCpWLVsaZYJ6w/dgk2EZuNLcRWYI9gW7CXsQPYYew7HA7HwBniHHB+uBhcMm41rgS3D9eMu4Drww3hJvF4vCreFO+CD8Fz8GJ8Ib4Kfxx/Ht+PH8a/J5AJWgRrgg8hliAkbCRUEBoI5wj9hBHCNFGBqE90IoYQecRcYimxjthBvEkcJk6TFEmGJBdSJCmZtIFUSWoiXSY9Jr0hk8k6ZEdyGFlAXk+uJJ8gXyUPkj9QlCgmFE9KHEVC2U45SrlAeUB5Q6VSDahu1FiqmLqdWk+9RH1KfS9HkzOX85fjya2Tq5FrleuXeyVPlNeXd5dfLp8nXyF/Sv6m/LgCUcFAwVOBo7BWoUbhtMI9hUlFmqKVYohimmKJYoPiNcVRJbySgZK3Ek+pQOmw0iWlIRpC06V50ri0TbQ62mXaMB1HN6T705PpxfQf6L30CWUlZVvlKOUc5Rrls8pSBsIwYPgzUhmljJOMu4yP8zTmuc/jz9s2r2le/7wplfkqbip8lSKVZpUBlY+qTFVv1RTVnaptqk/UMGomamFq2Wr71S6rjc+nz3eez51fNP/k/IfqsLqJerj6avXD6j3qkxqaGr4aGRpVGpc0xjUZmm6ayZrlmuc0x7RoWgu1BFrlWue1XjCVme7MVGYls4s5oa2u7act0T6k3as9rWOos1hno06zzhNdki5bN0G3XLdTd0JPSy9YL1+vUe+hPlGfrZ+kv0e/W3/KwNAg2mCLQZvBqKGKob9hnmGj4WMjqpGr0SqjWqM7xjhjtnGK8T7jWyawiZ1JkkmNyU1T2NTeVGC6z7TPDGvmaCY0qzW7x6Kw3FlZrEbWoDnDPMh8o3mb+SsLPYtYi50W3RZfLO0sUy3rLB9ZKVkFWG206rD6w9rEmmtdY33HhmrjY7POpt3mta2pLd92v+19O5pdsN0Wu067z/YO9iL7JvsxBz2HeIe9DvfYdHYou4R91RHr6OG4zvGM4wcneyex00mn351ZzinODc6jCwwX8BfULRhy0XHhuBxykS5kLoxfeHCh1FXbleNa6/rMTdeN53bEbcTd2D3Z/bj7Kw9LD5FHi8eUp5PnGs8LXoiXr1eRV6+3kvdi72rvpz46Pok+jT4Tvna+q30v+GH9Av12+t3z1/Dn+tf7TwQ4BKwJ6AqkBEYEVgc+CzIJEgV1BMPBAcG7gh8v0l8kXNQWAkL8Q3aFPAk1DF0V+nMYLiw0rCbsebhVeH54dwQtYkVEQ8S7SI/I0shHi40WSxZ3RslHxUXVR01Fe0WXRUuXWCxZs+RGjFqMIKY9Fh8bFXskdnKp99LdS4fj7OIK4+4uM1yWs+zacrXlqcvPrpBfwVlxKh4bHx3fEP+JE8Kp5Uyu9F+5d+UE15O7h/uS58Yr543xXfhl/JEEl4SyhNFEl8RdiWNJrkkVSeMCT0G14HWyX/KB5KmUkJSjKTOp0anNaYS0+LTTQiVhirArXTM9J70vwzSjMEO6ymnV7lUTokDRkUwoc1lmu5iO/kz1SIwkmyWDWQuzarLeZ0dln8pRzBHm9OSa5G7LHcnzyft+NWY1d3Vnvnb+hvzBNe5rDq2F1q5c27lOd13BuuH1vuuPbSBtSNnwy0bLjWUb326K3tRRoFGwvmBos+/mxkK5QlHhvS3OWw5sxWwVbO3dZrOtatuXIl7R9WLL4oriTyXckuvfWX1X+d3M9oTtvaX2pft34HYId9zd6brzWJliWV7Z0K7gXa3lzPKi8re7V+y+VmFbcWAPaY9kj7QyqLK9Sq9qR9Wn6qTqgRqPmua96nu37Z3ax9vXv99tf9MBjQPFBz4eFBy8f8j3UGutQW3FYdzhrMPP66Lqur9nf19/RO1I8ZHPR4VHpcfCj3XVO9TXN6g3lDbCjZLGseNxx2/94PVDexOr6VAzo7n4BDghOfHix/gf754MPNl5in2q6Sf9n/a20FqKWqHW3NaJtqQ2aXtMe9/pgNOdHc4dLT+b/3z0jPaZmrPKZ0vPkc4VnJs5n3d+8kLGhfGLiReHOld0Prq05NKdrrCu3suBl69e8blyqdu9+/xVl6tnrjldO32dfb3thv2N1h67npZf7H5p6bXvbb3pcLP9luOtjr4Ffef6Xfsv3va6feWO/50bA4sG+u4uvnv/Xtw96X3e/dEHqQ9eP8x6OP1o/WPs46InCk8qnqo/rf3V+Ndmqb307KDXYM+ziGePhrhDL/+V+a9PwwXPqc8rRrRG6ketR8+M+YzderH0xfDLjJfT44W/Kf6295XRq59+d/u9Z2LJxPBr0euZP0reqL45+tb2bedk6OTTd2nvpqeK3qu+P/aB/aH7Y/THkensT/hPlZ+NP3d8CfzyeCZtZubf94Tz+wplbmRzdHJlYW0KZW5kb2JqCjE2IDAgb2JqCjI2MTIKZW5kb2JqCjEwIDAgb2JqClsgL0lDQ0Jhc2VkIDE1IDAgUiBdCmVuZG9iagozIDAgb2JqCjw8IC9UeXBlIC9QYWdlcyAvTWVkaWFCb3ggWzAgMCAxNiAxNl0gL0NvdW50IDEgL0tpZHMgWyAyIDAgUiBdID4+CmVuZG9iagoxNyAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMyAwIFIgL1ZlcnNpb24gLzEuNCA+PgplbmRvYmoKMTggMCBvYmoKKE1hYyBPUyBYIDEwLjkuNSBRdWFydHogUERGQ29udGV4dCkKZW5kb2JqCjE5IDAgb2JqCihEOjIwMTYwMzAzMTkwNDI3WjAwJzAwJykKZW5kb2JqCjEgMCBvYmoKPDwgL1Byb2R1Y2VyIDE4IDAgUiAvQ3JlYXRpb25EYXRlIDE5IDAgUiAvTW9kRGF0ZSAxOSAwIFIgPj4KZW5kb2JqCnhyZWYKMCAyMAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDU2NTkgMDAwMDAgbiAKMDAwMDAwMDUwNSAwMDAwMCBuIAowMDAwMDA1NDIwIDAwMDAwIG4gCjAwMDAwMDAwMjIgMDAwMDAgbiAKMDAwMDAwMDQ4NiAwMDAwMCBuIAowMDAwMDAwNjA3IDAwMDAwIG4gCjAwMDAwMDA3MzEgMDAwMDAgbiAKMDAwMDAwMTMwMyAwMDAwMCBuIAowMDAwMDAxMzIyIDAwMDAwIG4gCjAwMDAwMDUzODMgMDAwMDAgbiAKMDAwMDAwMTM5MSAwMDAwMCBuIAowMDAwMDAyNjEwIDAwMDAwIG4gCjAwMDAwMDE0MzkgMDAwMDAgbiAKMDAwMDAwMjU4OSAwMDAwMCBuIAowMDAwMDAyNjQ3IDAwMDAwIG4gCjAwMDAwMDUzNjIgMDAwMDAgbiAKMDAwMDAwNTUwMSAwMDAwMCBuIAowMDAwMDA1NTY1IDAwMDAwIG4gCjAwMDAwMDU2MTcgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSAyMCAvUm9vdCAxNyAwIFIgL0luZm8gMSAwIFIgL0lEIFsgPDY3NGRkZmQ4MGY5ZTc3Yzg4ZDhjNjZhMTJhYTk4NTk0Pgo8Njc0ZGRmZDgwZjllNzdjODhkOGM2NmExMmFhOTg1OTQ+IF0gPj4Kc3RhcnR4cmVmCjU3MzQKJSVFT0YK"
 elif [[ $theme == "emoji" ]] ; then
 	ERROR_ICON="✖"︎
+fi
+
+cfgdir="$HOME/.config/dnscrypt"
+if ! [[ -d "$cfgdir" ]] ; then
+	mkdir -p "$cfgdir"
+	touch "$cfgdir/run"
+fi
+
+if [[ $1 == "toggle" ]] ; then
+	if [[ $2 == "stop" ]] ; then
+		mv "$cfgdir/run" "$cfgdir/stop"
+	elif [[ $2 == "start" ]] ; then
+		mv "$cfgdir/stop" "$cfgdir/run"
+	fi
+fi
+
+if [[ -e "$cfgdir/stop" ]] ; then
+	echo "$ERROR_ICON"
+	echo "---"
+	echo "Plugin Stopped"
+	echo "---"
+	echo "Restart… | refresh=true terminal=false bash=$0 param1=toggle param2=start"
+	exit 0
+else
+	stopped=false
 fi
 
 interface=$(route get 0.0.0.0 2>/dev/null | awk '/interface: / {print $2}')
@@ -177,24 +202,41 @@ CONFIG=$(cat "$TOML")
 DNSCRYPT_PROXY_IPS=$(echo "$CONFIG" | awk -F"'" '/^listen_addresses =/{print $2}' | awk -F: '{print $1}')
 [[ $DNSCRYPT_PROXY_IPS == "" ]] && DNSCRYPT_PROXY_IPS="127.0.0.1"
 
+nstat_all=$(netstat -nr 2>/dev/null)
+
+if [[ $DNSCRYPT_PROXY_IPS != "127.0.0.1" ]] ; then
+	int1=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $1}')
+	int2=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $2}')
+	int3=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $3}')
+	int4=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $4}')
+	chnstat=$(echo "$nstat_all" | grep "^$int1\.$int2\.$int3\.$int4.*lo0$")
+	if ! [[ $chnstat ]] ; then
+		echo "$ERROR_ICON"
+		echo "---"
+		echo "$DNSCRYPT_PROXY_IPS is not in your routing table | color=red"
+		echo "Please make sure to install DNSCrypt correctly"
+		echo "---"
+		echo "You should either"
+		echo "● edit and load the provided LaunchDaemon, or"
+		echo "● manually run the following command:"
+		echo "sudo ifconfig lo0 alias $DNSCRYPT_PROXY_IPS | font=Menlo size=12"
+		echo "---"
+		echo "Refresh… | refresh=true"
+		exit 0
+	fi
+fi
+
 localdns=$(ipconfig getoption $interface domain_name_server 2>/dev/null)
 
-cfgdir="$HOME/.config/dnscrypt"
 fbloc="$cfgdir/cdefault"
 dfloc="$cfgdir/pdefault"
 udfloc="$cfgdir/udefault"
 dfb="# FALLBACK SERVER LIST FOR DNSCRYPT\n# Please enter the DNS IP address in column 1.\n# You may add a description in column 2.\n# Columns must be separated by a whitespace character.\n\n9.9.9.9 Quad9"
 udf="# DNS LIST FOR DEFAULT DNS WITHOUT DNSCRYPT\n# Please enter the DNS IP address in column 1.\n# You may add a description in column 2.\n# Columns must be separated by a whitespace character.\n\nempty empty"
-if ! [[ -d "$cfgdir" ]] ; then
-	mkdir -p "$cfgdir"
-	echo -e "$dfb" > "$fbloc"
-	echo -e "$udf" > "$udfloc"
-	echo ${DNSCRYPT_PROXY_IPS} > "$dfloc"
-else
-	! [[ -f "$fbloc" ]] && echo -e "$dfb" > "$fbloc"
-	! [[ -f "$udfloc" ]] && echo -e "$udf" > "$udfloc"
-	! [[ -f "$dfloc" ]] && echo "${DNSCRYPT_PROXY_IPS}" > "$dfloc"
-fi
+
+! [[ -f "$fbloc" ]] && echo -e "$dfb" > "$fbloc"
+! [[ -f "$udfloc" ]] && echo -e "$udf" > "$udfloc"
+! [[ -f "$dfloc" ]] && echo "${DNSCRYPT_PROXY_IPS}" > "$dfloc"
 
 cachedir="$HOME/.cache/dnscrypt"
 currloc="$cachedir/current"
@@ -310,8 +352,13 @@ EOF
 if [[ $1 == "proxyservice" ]] ; then
 	if [[ $2 == "start" ]] ; then
 		mprompt="Start"
+		servopt="start"
 	elif [[ $2 == "stop" ]] ; then
 		mprompt="Stop"
+		servopt="start"
+	elif [[ $2 == "force-restart" ]] ; then
+		mprompt="Restart"
+		servopt="restart"
 	fi
 	rootpw=$(osascript 2>/dev/null << EOT
 tell application "System Events"
@@ -337,19 +384,17 @@ EOT
 		[[ $(echo "$dcptloc" | grep "/Cellar/") != "" ]] && brewed=true
 		brewstatus=$(brew help 2>/dev/null)
 		if [[ $brewstatus ]] && $brewed ; then
+			echo "$rootpw" | sudo -S 2>/dev/null brew services $servopt dnscrypt-proxy 2>/dev/null \
+					&& sudo -k && rootpw=""
 			if [[ $2 == "stop" ]] ; then
-				echo "$rootpw" | sudo -S 2>/dev/null brew services stop dnscrypt-proxy \
-					&& sudo -k && rootpw="" \
-					&& networksetup -setdnsservers "$service" ${UDEFAULT} \
+				networksetup -setdnsservers "$service" ${UDEFAULT} 2>/dev/null \
 					&& _flush 2>/dev/null \
 					&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
-			elif [[ $2 == "start" ]] ; then
-				echo "$rootpw" | sudo -S 2>/dev/null brew services start dnscrypt-proxy \
-					&& sudo -k && rootpw=""
+			else
 				sleep 1
 				proxystatus=$(pgrep -U 0 "dnscrypt-proxy")
 				if [[ $proxystatus ]] ; then
-					networksetup -setdnsservers "$service" ${DEFAULT} \
+					networksetup -setdnsservers "$service" ${DEFAULT} 2>/dev/null \
 						&& _flush 2>/dev/null \
 						&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 				else
@@ -359,19 +404,17 @@ EOT
 			fi
 		else
 			if [[ $dcpver ]] ; then
+				echo "$rootpw" | sudo -S 2>/dev/null dnscrypt-proxy -service stop 2>/dev/null \
+					&& sudo -k && rootpw=""
 				if [[ $2 == "stop" ]] ; then
-					echo "$rootpw" | sudo -S 2>/dev/null dnscrypt-proxy -service stop \
-						&& sudo -k && rootpw="" \
-						networksetup -setdnsservers "$service" ${UDEFAULT} \
+					networksetup -setdnsservers "$service" ${UDEFAULT} 2>/dev/null \
 						&& _flush 2>/dev/null \
 						&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
-				elif [[ $2 == "start" ]] ; then
-					echo "$rootpw" | sudo -S 2>/dev/null dnscrypt-proxy -service start \
-						&& sudo -k && rootpw=""
+				else
 					sleep 1
 					proxystatus=$(pgrep -U 0 "dnscrypt-proxy")
 					if [[ $proxystatus ]] ; then
-						networksetup -setdnsservers "$service" ${DEFAULT} \
+						networksetup -setdnsservers "$service" ${DEFAULT} 2>/dev/null \
 							&& _flush 2>/dev/null \
 							&& /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 					else
@@ -471,7 +514,7 @@ fi
 
 echo "---"
 
-nstat=$(netstat -nr 2>/dev/null | awk '/^0\/1/ {print $6}')
+nstat=$(echo "$nstat_all" | awk '/^0\/1/ {print $6}')
 
 if ! [[ $localdns ]] ; then
 	localdns="None"
@@ -692,21 +735,17 @@ scrpath="$scrparent/$SCRNAME"
 scrshort="${scrpath/#$HOME/~}"
 
 _serviceinfo () {
-	echo "--Process | size=11 color=gray"
+	echo "--Configure… | terminal=false bash=/usr/bin/open param1=\"$TOML\""
+	echo "-----"
+	echo "--Process ID & Version Number | size=11 color=gray"
+	! [[ $dcpver ]] && dcpverp="n/a" || dcpverp="v$dcpver"
 	if $proxy ; then
-		echo "--$proxystatus (root)"
+		echo "--$proxystatus ($dcpverp)"
 	else
-		echo "--Disabled"
+		echo "--Disabled ($dcpverp)"
 	fi
 	echo "-----"
-	echo "--Version | size=11 color=gray"
-	if [[ $dcpver != "" ]] ; then
-		echo "--$dcpver"
-	else
-		echo "--n/a"
-	fi
-	echo "-----"
-	echo "--Path | size=11 color=gray"
+	echo "--Executable Path | size=11 color=gray"
 	shortpath="${dcploc/#$HOME/~}"
 	pathdir=$(dirname "$dcploc")
 	echo "--$shortpath | terminal=false bash=/usr/bin/open param1=\"$pathdir\""
@@ -717,7 +756,7 @@ _serviceinfo () {
 		echo "--→ $dcpashort | terminal=false bash=/usr/bin/open param1=\"$dcpaparent\""
 	fi
 	echo "-----"
-	echo "--Configuration | size=11 color=gray"
+	echo "--Configuration Path | size=11 color=gray"
 	shorttoml="${TOML/#$HOME/~}"
 	tomldir=$(dirname "$TOML")
 	echo "--$shorttoml | terminal=false bash=/usr/bin/open param1=\"$tomldir\""
@@ -727,7 +766,6 @@ _serviceinfo () {
 		tomlaparent=$(dirname "$tomla")
 		echo "--→ $tomlashort | terminal=false bash=/usr/bin/open param1=\"$tomlaparent\""
 	fi
-	echo "--Edit… | terminal=false bash=/usr/bin/open param1=\"$TOML\""
 	echo "-----"
 	echo "--Open Network Preferences… | terminal=false bash=/usr/bin/open param1=\"/System/Library/PreferencePanes/Network.prefPane\""
 }
@@ -737,6 +775,8 @@ echo "---"
 if $proxy ; then
 	echo "DNSCrypt Service | checked=true terminal=false bash=$0 param1=proxyservice param2=stop"
 	_serviceinfo
+	echo "Force-Restart Service… | checked=true alternate=true terminal=false bash=$0 param1=proxyservice param2=force-restart"
+	_serviceinfo
 else
 	echo "DNSCrypt Service | terminal=false bash=$0 param1=proxyservice param2=start"
 	_serviceinfo
@@ -745,6 +785,13 @@ fi
 echo "---"
 
 echo "DNSCrypt Menu"
+if ! $stopped ; then
+	echo "--Stop Plugin… | terminal=false refresh=true bash=$0 param1=toggle param2=stop"
+	echo "-----"
+fi
+echo "--Version $dcmver$dcmvadd"
+echo "-----"
+echo "--Plugin Script Path | size=11 color=gray"
 echo "--$scrshort | terminal=false bash=/usr/bin/open param1=\"$scrparent\""
 if [[ -h $scrpath ]] ; then
 	scrapath=$(_abspath "$scrpath")
@@ -752,9 +799,10 @@ if [[ -h $scrpath ]] ; then
 	scraparent=$(dirname "$scrapath")
 	echo "--→ $scrashort | terminal=false bash=/usr/bin/open param1=\"$scraparent\""
 fi
-echo "--Edit… | terminal=false bash=/usr/bin/open param1=\"$scrpath\""
 echo "-----"
-echo "--Version $dcmver$dcmvadd"
+echo "--Edit Plugin… | terminal=false bash=/usr/bin/open param1=\"$scrpath\""
+echo "--Open Configuration Directory… | terminal=false bash=/usr/bin/open param1=\"$cfgdir\""
+echo "--Open Cache Directory… | terminal=false bash=/usr/bin/open param1=\"$cachedir\""
 echo "-----"
 echo "--GitHub Repository… | href=https://github.com/JayBrown/DNSCrypt-Menu"
 echo "Refresh… | refresh=true"
