@@ -19,7 +19,7 @@
 * display DNS information: services, devices, resolvers, IP, hostname, ping
 * display configured resolvers and DNS on the LAN
 * display DNSCrypt servers as specified in the .toml configuration file
-* display CryptDNS executable and service information: owner, PID, version, executable path, config path
+* display DNSCrypt executable and service information: owner, PID, version, executable path, config path, current log & output
 
 ![screengrab](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/screengrab.png)
 
