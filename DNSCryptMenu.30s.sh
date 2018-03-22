@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.9</bitbar.version>
+# <bitbar.version>1.0.10</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.9
+# version 1.0.10
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.9"
+dcmver="1.0.10"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1232,7 +1232,7 @@ fi
 
 currentdns=$(cat "$currloc")
 currentdnsip=$(echo "$currentdns" | awk '{print $1}')
-currentdnsname=$(echo "$currentdns" | awk '{print $2}')
+currentdnsname=$(echo "$currentdns" | awk '{print substr($0, index($0,$2))}')
 
 DEFAULT=$(cat "$dfloc")
 
