@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.8</bitbar.version>
+# <bitbar.version>1.0.9</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.8
+# version 1.0.9
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.8"
+dcmver="1.0.9"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1665,20 +1665,6 @@ else
 	fi
 fi
 
-echo "---"
-
-servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
-if [[ $servers ]] ; then
-	echo "Configured DNSCrypt Servers"
-	while read -r server
-	do
-		echo "--$server"
-	done < <(echo -e "$servers")
-else
-	echo "All DNSCrypt Servers Used"
-fi
-echo "DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
-
 scrparent="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 scrpath="$scrparent/$SCRNAME"
 scrshort="${scrpath/#$HOME/~}"
@@ -1699,6 +1685,7 @@ _serviceinfo () {
 		servout=$(echo "$servout" | sed -e 's/^Password://g' -e 's/^==> //g')
 		if $proxy ; then
 			servlabel=$(echo "$servout" | grep "label: " | awk -F": " '{print $2}' | sed 's/)$//g' | awk '!seen[$0]++')
+			! [[ $servlabel ]] && servlabel="Unknown Service Name"
 			echo "--$servlabel"
 		fi
 		if [[ $servout ]] ; then
@@ -1711,6 +1698,18 @@ _serviceinfo () {
 			done < <(echo "$servout")
 		fi
 	fi
+	echo "-----"
+	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
+	if [[ $servers ]] ; then
+		echo "--Configured DNSCrypt Servers"
+		while read -r server
+		do
+			echo "----$server"
+		done < <(echo -e "$servers")
+	else
+		echo "--All DNSCrypt Servers Used"
+	fi
+	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 	logline=$(echo "$CONFIG" | grep "log_file = " | head -n 1)
 	if [[ $logline != "#"* ]] ; then
 		logloc=$(echo "$logline" | awk -F\' '{print $2}')
@@ -1738,10 +1737,31 @@ _serviceinfo () {
 				fi
 				echo "----System Logging: $syslog"
 				echo "-------"
-				while read -r line
-				do
-					echo "----$line | font=Menlo size=11"
-				done < <(echo "$logcont")
+				logtimeouts=$(echo "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g')
+				logerrors=$(echo "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g')
+				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "TIMEOUT$" | sed 's/\[NOTICE\] //g')
+				if [[ $logerrors ]] ; then
+					echo "----Errors"
+					while read -r line
+					do
+						echo "------$line | font=Menlo size=11"
+					done < <(echo "$logerrors")
+				fi
+				if [[ $logtimeouts ]] ; then
+					echo "----Timeouts"
+					while read -r line
+					do
+						echo "------$line | font=Menlo size=11"
+					done < <(echo "$logtimeouts")
+
+				fi
+				if [[ $logcont ]] ; then
+					echo "-------"
+					while read -r line
+					do
+						echo "----$line | font=Menlo size=11"
+					done < <(echo "$logcont")
+				fi
 			fi
 		fi
 		echo "--View Full Log… | terminal=false bash=/usr/bin/open param1=\"$logloc\""
