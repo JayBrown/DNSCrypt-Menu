@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.14</bitbar.version>
+# <bitbar.version>1.0.15</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.14
+# version 1.0.15
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.14"
+dcmver="1.0.15"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1857,10 +1857,9 @@ scrshort="${scrpath/#$HOME/~}"
 _serviceinfo () {
 	echo "--Configure… | terminal=false bash=/usr/bin/open param1=\"$TOML\""
 	echo "-----"
-	echo "--Process Information | size=11 color=gray"
 	! [[ $dcpver ]] && dcpverp="n/a" || dcpverp="v$dcpver"
 	if $proxy ; then
-		echo "--$proxystatus ($dcpverp)"
+		echo "--PID $proxystatus ($dcpverp)"
 	else
 		echo "--Disabled ($dcpverp)"
 	fi
@@ -1875,23 +1874,23 @@ _serviceinfo () {
 		fi
 		if [[ $servout ]] ; then
 			echo "-----"
-			echo "--Latest Output | size=11 color=gray"
-			echo "--$mdate | font=Menlo size=11"
+			echo "--Latest Output"
+			echo "----$mdate | font=Menlo size=11"
 			while read -r line
 			do
-				echo "--$line | font=Menlo size=11"
-			done < <(echo "$servout")
+				echo "----$line | font=Menlo size=11"
+			done < <(echo -e "$servout" | sed 's/ (label: .*)$//g')
 		fi
 	fi
 	echo "-----"
-	echo "--Network Status | color=gray size=11"
+	echo "--Network Status"
 	if [[ $nstat_info ]] ; then
 		while read -r nstati
 		do
-			echo "--$nstati | font=Menlo size=11"
+			echo "----$nstati | font=Menlo size=11"
 		done < <(echo "$nstat_info")
 	else
-		echo "--No Information"
+		echo "----No Information"
 	fi
 	echo "-----"
 	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
@@ -1899,20 +1898,20 @@ _serviceinfo () {
 		echo "--Configured DNSCrypt Servers"
 		while read -r server
 		do
-			echo "----$server"
+			echo "----$server | font=Menlo size=11"
 		done < <(echo -e "$servers")
 	else
 		echo "--All DNSCrypt Servers Used"
 	fi
 	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 	logline=$(echo "$CONFIG" | grep "log_file = " | head -n 1)
+	echo "-----"
 	if [[ $logline != "#"* ]] ; then
 		logloc=$(echo "$logline" | awk -F\' '{print $2}')
 		if [[ $logloc != "/"* ]] ; then
 			logloc="$etcdir/$logloc"
 		fi
 		if [[ -f $logloc ]] ; then
-			echo "-----"
 			logcont=$(tail -r "$logloc" | awk '{print} / Source \[/ {exit}' | tail -r)
 			if [[ $logcont ]] ; then
 				echo "--Latest Log Data"
@@ -1950,38 +1949,45 @@ _serviceinfo () {
 					done < <(echo "$logtimeouts")
 
 				fi
+				resolversource=$(echo "$logcont" | head -n 1 | awk -F"[][]" '{print $4}')
+				! [[ $resolversource ]] && resolversource="Unknown source"
+				echo "-------"
+				echo "----$resolversource | font=Menlo size=11 href=\"$resolversource\""
 				if [[ $logcont ]] ; then
 					echo "-------"
 					while read -r line
 					do
 						echo "----$line | font=Menlo size=11"
-					done < <(echo "$logcont")
+					done < <(echo "$logcont" | sed -e 's/Source \[http.*\] loaded/Source loaded/g' -e 's/dnscrypt-proxy is //g')
 				fi
 			fi
 		fi
 		echo "--View Full Log… | terminal=false bash=/usr/bin/open param1=\"$logloc\""
-		echo "-----"
+	else
+		echo "--Logging Disabled"
 	fi
-	echo "--Executable Path | size=11 color=gray"
+	echo "-----"
+	echo "--Paths"
+	echo "----Executable | size=11 color=gray"
 	shortpath="${dcploc/#$HOME/~}"
 	pathdir=$(dirname "$dcploc")
-	echo "--$shortpath | terminal=false bash=/usr/bin/open param1=\"$pathdir\""
+	echo "----$shortpath | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$pathdir\""
 	if [[ -h $dcploc ]] ; then
 		dcpaloc=$(_abspath "$dcploc")
 		dcpashort="${dcpaloc/#$HOME/~}"
 		dcpaparent=$(dirname "$dcpaloc")
-		echo "--→ $dcpashort | terminal=false bash=/usr/bin/open param1=\"$dcpaparent\""
+		echo "----→ $dcpashort | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$dcpaparent\""
 	fi
-	echo "-----"
-	echo "--Configuration Path | size=11 color=gray"
+	echo "-------"
+	echo "----Configuration File | size=11 color=gray"
 	shorttoml="${TOML/#$HOME/~}"
 	tomldir=$(dirname "$TOML")
-	echo "--$shorttoml | terminal=false bash=/usr/bin/open param1=\"$tomldir\""
+	echo "----$shorttoml | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$tomldir\""
 	if [[ -h $TOML ]] ; then
 		tomla=$(_abspath "$TOML")
 		tomlashort="${tomla/#$HOME/~}"
 		tomlaparent=$(dirname "$tomla")
-		echo "--→ $tomlashort | terminal=false bash=/usr/bin/open param1=\"$tomlaparent\""
+		echo "----→ $tomlashort | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$tomlaparent\""
 	fi
 	echo "-----"
 	echo "--Clear DNS Cache… | terminal=false refresh=true bash=$0 param1=network param2=flush"
@@ -2011,13 +2017,16 @@ if ! $stopped ; then
 fi
 echo "--Version $dcmver$dcmvadd"
 echo "-----"
-echo "--Plugin Script Path | size=11 color=gray"
-echo "--$scrshort | terminal=false bash=/usr/bin/open param1=\"$scrparent\""
 if [[ -h $scrpath ]] ; then
+	echo "--Plugin Script Paths"
+	echo "----$scrshort | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$scrparent\""
 	scrapath=$(_abspath "$scrpath")
 	scrashort="${scrapath/#$HOME/~}"
 	scraparent=$(dirname "$scrapath")
-	echo "--→ $scrashort | terminal=false bash=/usr/bin/open param1=\"$scraparent\""
+	echo "----→ $scrashort | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$scraparent\""
+else
+	echo "--Plugin Script Path"
+	echo "----$scrshort | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$scrparent\""
 fi
 echo "-----"
 echo "--Edit Plugin… | terminal=false bash=/usr/bin/open param1=\"$scrpath\""
