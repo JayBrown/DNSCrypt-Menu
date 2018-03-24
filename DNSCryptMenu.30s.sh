@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.11</bitbar.version>
+# <bitbar.version>1.0.12</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.11
+# version 1.0.12
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.11"
+dcmver="1.0.12"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -284,6 +284,7 @@ if [[ $DNSCRYPT_PROXY_IPS != "127.0.0.1" ]] ; then
 		exit 0
 	fi
 fi
+nstat_info=$(echo "$chnstat" | awk '{print "Destination:\t"$1"\nGateway:\t\t"$2"\nFlags:\t\t"$3"\nRefs:\t\t"$4"\nUse:\t\t\t"$5"\nNetif:\t\t"$6}')
 
 localdns=$(ipconfig getoption $interface domain_name_server 2>/dev/null)
 
@@ -1872,7 +1873,7 @@ _serviceinfo () {
 		fi
 		if [[ $servout ]] ; then
 			echo "-----"
-			echo "--Last Output | size=11 color=gray"
+			echo "--Latest Output | size=11 color=gray"
 			echo "--$mdate | font=Menlo size=11"
 			while read -r line
 			do
@@ -1880,6 +1881,12 @@ _serviceinfo () {
 			done < <(echo "$servout")
 		fi
 	fi
+	echo "-----"
+	echo "--Network Status | color=gray size=11"
+	while read -r nstati
+	do
+		echo "--$nstati | font=Menlo size=11"
+	done < <(echo "$nstat_info")
 	echo "-----"
 	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
 	if [[ $servers ]] ; then
@@ -1902,7 +1909,7 @@ _serviceinfo () {
 			echo "-----"
 			logcont=$(tail -r "$logloc" | awk '{print} / Source \[/ {exit}' | tail -r)
 			if [[ $logcont ]] ; then
-				echo "--Last Log Data"
+				echo "--Latest Log Data"
 				loglevelline=$(echo "$CONFIG" | grep "log_level = ")
 				if [[ $loglevelline == "#"* ]] ; then
 					loglevel="2"
