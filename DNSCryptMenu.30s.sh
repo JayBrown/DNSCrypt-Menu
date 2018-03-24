@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.12</bitbar.version>
+# <bitbar.version>1.0.14</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.12
+# version 1.0.14
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.12"
+dcmver="1.0.14"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -268,7 +268,7 @@ if [[ $DNSCRYPT_PROXY_IPS != "127.0.0.1" ]] ; then
 	int2=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $2}')
 	int3=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $3}')
 	int4=$(echo "$DNSCRYPT_PROXY_IPS" | awk -F. '{print $4}')
-	chnstat=$(echo "$nstat_all" | grep "^$int1\.$int2\.$int3\.$int4.*lo0$")
+	chnstat=$(echo "$nstat_all" | grep "^$int1\.$int2\.$int3\.$int4.*lo0")
 	if ! [[ $chnstat ]] ; then
 		echo "$ERROR_ICON"
 		echo "---"
@@ -283,6 +283,8 @@ if [[ $DNSCRYPT_PROXY_IPS != "127.0.0.1" ]] ; then
 		echo "Refresh… | refresh=true"
 		exit 0
 	fi
+else
+	chnstat=$(echo "$nstat_all" | grep "^127\.0\.0\.1.*lo0")
 fi
 nstat_info=$(echo "$chnstat" | awk '{print "Destination:\t"$1"\nGateway:\t\t"$2"\nFlags:\t\t"$3"\nRefs:\t\t"$4"\nUse:\t\t\t"$5"\nNetif:\t\t"$6}')
 
