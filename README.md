@@ -11,20 +11,22 @@
 **DNSCrypt Menu** also works as a tool to configure your default DNS setup.
 
 ## Functionality
-* start & stop the DNSCrypt service
-* switch between settings (_see below_; exception: **Other DNS**)
+* start, stop or force-restart the DNSCrypt service with support for Homebrew installations
+* switch between settings (_see below_; exception: **Other DNS** via VPN)
 * configure additional resolvers for **DNSCrypt + Fallback** setting
 * configure resolvers for the **Default DNS** setting
-  * _Note_: at initial run the user's original DNS resolvers, as specified in the **Network** preference pane, are saved to `$HOME/.config/dnscrypt/backup-*`, followed by the service name, e.g. `backup-Wi-Fi`
-* display DNS information: services, devices, resolvers, IP, hostname, ping
-* display configured resolvers and DNS on the LAN
+  * _Note_: at initial run the user's original DNS resolvers, as specified in the **Network** preference pane, are saved to `$HOME/.config/dnscrypt/backup-*`, followed by the service name and `-initial`, e.g. `backup-Wi-Fi-initial`; backed-up resolvers can be reloaded at any time.
+* display DNS information: service, devices (incl. TUN/TAP), current resolvers (`/etc/resolv.conf`), configured resolvers (Network preferences), internal fallback resolver (DNSCrypt), configured fallback resolvers (DNSCrypt Menu), public DNS IP with hostname & ping, local area DNS
 * display DNSCrypt servers as specified in the .toml configuration file
-* display DNSCrypt executable and service information: owner, PID, version, executable path, config path, current log & output
+* display DNSCrypt executable and service information: owner, PID, version, network status, servers, executable path, config path, latest log & output, full log, log settings
+* backup and reload resolvers from **Other DNS** setups (excluding VPN tunnels)
+* options to clear DNS cache or renew DHCP lease
+* links to current resolver source, this repository, and a list of available public DNSCrypt server
 
 ![screengrab](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/screengrab.png)
 
 ## Installation
-* install `dnscrypt-proxy` version 2, e.g. with **[Homebrew](https://brew.sh)**: `brew install dnscrypt-proxy`
+* install `dnscrypt-proxy` version 2, e.g. with **[Homebrew](https://brew.sh)** (recommended): `brew install dnscrypt-proxy`
   * configure `dnscrypt-proxy` by editing the `.toml` configuration file
 * download the latest version of **BitBar**, currently at **[v2.0.0 beta 10](https://github.com/matryer/bitbar/releases/tag/v2.0.0-beta10)**
   * install and configure BitBar
@@ -34,21 +36,24 @@
 * launch BitBar
 
 ## Settings
-* **DNSCrypt**
-* **DNSCrypt + Fallback** — DNSCrypt using fallback DNS, with Quad9 (9.9.9.9) as initial preset
-* **Default DNS** — DNS without DNSCrypt (no initial resolvers)
-* **Other DNS** — auto-setting for other DNS setups, e.g. when using a VPN
+* **DNSCrypt** — basic DNSCrypt setting without fallback DNS except the one specified in the TOML configuration file
+* **DNSCrypt + Fallback** — DNSCrypt using additional fallback DNS, with Quad9 (9.9.9.9) as initial preset
+* **Default DNS** — DNS without DNSCrypt and without initial resolvers, i.e. macOS will use the LAN DNS
+* **Other DNS**
+  * fixed auto-setting when using a VPN
+  * user-defined settings based on manual configuration in the Network preference pane (excluding VPN scenarios)
+
+## Notes
+* The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstration purposes. If you use a different proxy address than the default `127.0.0.1`, you need to map your alternate address at every system boot for DNSCrypt to work. This particular daemon runs the command `ifconfig lo0 alias 127.0.0.54`. Edit to your needs and install/enable using the following commands:
+
+  * `cp local.lcars.DNSCryptLoopback.plist /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
+  * `chmod 0644 /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
+  * `launchctl load /Library/LaunchDaemons/local.lcars DNSCryptLoopback.plist`
+  * Verify with: `netstat -nr | grep "^127\.0\.0\..*lo0$"`
+
 * Stop and restart the plugin from external scripts with:
   * stop: `mv $HOME/.config/dnscrypt/run $HOME/.config/dnscrypt/stop`
   * restart: `mv $HOME/.config/dnscrypt/stop $HOME/.config/dnscrypt/run`
-
-## Notes
-The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstration purposes. If you use a different proxy address than the default `127.0.0.1`, you need to map your alternate address at every system boot for DNSCrypt to work. This particular daemon runs the command `ifconfig lo0 alias 127.0.0.54`. Edit to your needs and install/enable using the following commands:
-
-* `cp local.lcars.DNSCryptLoopback.plist /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
-* `chmod 0644 /Library/LaunchDaemons/local.lcars.DNSCryptLoopback.plist`
-* `launchctl load /Library/LaunchDaemons/local.lcars DNSCryptLoopback.plist`
-* Verify with: `netstat -nr | grep "^127\.0\.0\..*lo0$"`
 
 ## Todo
 * Tweaking & testing, lots of testing
