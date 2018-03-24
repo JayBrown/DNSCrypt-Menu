@@ -51,10 +51,8 @@ The file `local.lcars.DNSCryptLoopback.plist` is a LaunchDaemon for demonstratio
 * Verify with: `netstat -nr | grep "^127\.0\.0\..*lo0$"`
 
 ## Todo
-* Testing, lots of testing
-* TOML parsing (blocklists, IPv6, log files etc.)
-* DNSCrypt icon for notifications using terminal-notifier
-* tweaking, e.g. `brew service restart` as fallback at service start fail
+* Tweaking & testing, lots of testing
+* TOML parsing (blocklists, IPv6 etc.)
 
 ## Thank you
 Thank you to **[Frank Denis](https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher)** for kicking this off with his original plugin.

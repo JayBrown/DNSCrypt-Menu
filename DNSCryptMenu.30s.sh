@@ -6,15 +6,15 @@
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
-# <bitbar.version>1.0.10</bitbar.version>
+# <bitbar.version>1.0.11</bitbar.version>
 
 # DNSCrypt Menu
-# version 1.0.10
+# version 1.0.11
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.10"
+dcmver="1.0.11"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -109,6 +109,10 @@ etcdir=$(dirname "$TOML")
 process="DNSCrypt Menu"
 account=$(id -un)
 
+_beep () {
+	osascript -e "beep"
+}
+
 _notify () {
 	if [[ $tn_status == "osa" ]] ; then
 			osascript &>/dev/null << EOT
@@ -198,6 +202,58 @@ _flush () {
 		killall -HUP mDNSResponder 2>/dev/null
 	fi
 }
+
+_rootpw () {
+	if [[ $1 == "dhcp" ]] ; then
+		osascript 2>/dev/null << EOT
+tell application "System Events"
+	activate
+	set theLogoPath to ((path to home folder from user domain) as text) & ".cache:dnscrypt:icon.png"
+	set thePW to text returned of (display dialog "Please enter your administrator password to renew the DHCP lease for the $service service on interface $interface." & ¬
+		return & return & ¬
+		"Please note that this operation can reset your system's resolvers configuration file, and you might need to reboot your Mac to restore your network settings to the desired state." ¬
+		default answer "" ¬
+		with hidden answer ¬
+		buttons {"Cancel", "Renew"} ¬
+		default button 2 ¬
+		with title "DNSCrypt: DHCP Lease" ¬
+		with icon file theLogoPath ¬
+		giving up after 180)
+	end tell
+thePW
+EOT
+	elif [[ $1 == "service" ]] ; then
+		osascript 2>/dev/null << EOT
+tell application "System Events"
+	activate
+	set theLogoPath to ((path to home folder from user domain) as text) & ".cache:dnscrypt:icon.png"
+	set thePW to text returned of (display dialog "Please enter your administrator password to $2 the DNSCrypt Service." & ¬
+		return & return & ¬
+		"Please wait for the process to finish. You will need to enter your password again to change the macOS Network configuration." ¬
+		default answer "" ¬
+		with hidden answer ¬
+		buttons {"Cancel", "$3"} ¬
+		default button 2 ¬
+		with title "DNSCrypt: Service" ¬
+		with icon file theLogoPath ¬
+		giving up after 180)
+	end tell
+thePW
+EOT
+	fi
+}
+if [[ $1 == "network" ]] ; then
+	if [[ $2 == "flush" ]] ; then
+		_flush
+	elif [[ $2 == "dhcp" ]] ; then
+		rootpw=$(_rootpw dhcp)
+		if [[ $rootpw ]] ; then
+			echo "$rootpw" | sudo -S 2>/dev/null ipconfig set $interface DHCP || _notify "⚠️ Error!" "Renew DHCP Lease"
+			sudo -k && rootpw="" && sleep 1
+		fi
+	fi
+	exit 0
+fi
 
 CONFIG=$(cat "$TOML" | sed -e 's/^[ \t]*//' | grep -v "^$" | grep -v "##" | grep -v "^# *#$")
 
@@ -1165,14 +1221,48 @@ _service_resolvers () {
 	fi
 }
 
-bakloc="$cfgdir/backup-$service"
-if ! [[ -f "$bakloc" ]] ; then
-	iresolvers=$(_service_resolvers "$service")
-	if [[ $iresolvers == "None" ]] ; then
-		echo "# No $service DNS resolvers detected at initial run" > "$bakloc"
+baklocname="backup-$service"
+bakloc="$cfgdir/$baklocname"
+ibakloc="$bakloc-initial"
+if ! [[ -f "$ibakloc" ]] ; then
+	if [[ -f "$bakloc" ]] ; then
+		obak=$(cat "$bakloc" | grep -v "^#")
+		pdate=$(date +%s)
+		echo -e "# $pdate\n$obak" > "$ibakloc" && rm -f "$bakloc" 2>/dev/null
 	else
-		echo ${iresolvers} > "$bakloc"
+		iresolvers=$(_service_resolvers "$service")
+		pdate=$(date +%s)
+		if [[ $iresolvers != "None" ]] ; then
+			echo "# $pdate" > "$ibakloc"
+			echo ${iresolvers} >> "$ibakloc" && _notify "✅ Initial backup successful!" "${iresolvers}"
+		fi
 	fi
+fi
+
+if [[ $1 == "cbackup" ]] ; then
+	bresolvers=$(_service_resolvers "$service")
+	if [[ $bresolvers == "None" ]] ; then
+		_beep
+		_notify "⚠️ Backup error!" "No resolvers detected"
+	else
+		pdate=$(date +%s)
+		echo ${bresolvers} > "$bakloc-d$pdate" && _notify "✅ Backup successful!" "${bresolvers}"
+	fi
+fi
+
+if [[ $1 == "rload" ]] ; then
+	if [[ $2 == "initial" ]] ; then
+		lresolvers=$(cat "$ibakloc" | grep -v "^#")
+	else
+		lresolvers=$(cat "$bakloc-d$2")
+	fi
+	if [[ $lresolvers ]] ; then
+		networksetup -setdnsservers "$service" ${lresolvers} 2>/dev/null && _flush 2>/dev/null
+	else
+		_beep
+		_notify "⚠️ Error!" "No resolvers detected"
+	fi
+	exit 0
 fi
 
 defaultdns=$(cat "$udfloc" | grep -v "^#" | grep -v "^$" | grep -v "^empty empty$" | awk '!seen[$0]++' | grep -v "$localdns")
@@ -1196,7 +1286,7 @@ service_resolvers=$(_service_resolvers "$service")
 SCRNAME=$(basename $0)
 
 _setdefault () {
-	networksetup -setdnsservers "$service" ${UDEFAULT} && _flush 2>/dev/null
+	networksetup -setdnsservers "$service" ${UDEFAULT} 2>/dev/null && _flush 2>/dev/null
 }
 
 if ! $proxy && [[ $(echo "$service_resolvers" | grep "$DNSCRYPT_PROXY_IPS") != "" ]] ; then
@@ -1205,7 +1295,14 @@ if ! $proxy && [[ $(echo "$service_resolvers" | grep "$DNSCRYPT_PROXY_IPS") != "
 	exit 0
 fi
 
-if [[ $service_resolvers == "None" ]] && [[ $UDEFAULTS ]] ; then
+nstat=$(echo "$nstat_all" | awk '/^0\/1/ {print $6}')
+if [[ $(echo "$nstat" | grep 'tun\|tap') == "" ]] ; then
+	vpn=false
+else
+	vpn=true
+fi
+
+if [[ $service_resolvers == "None" ]] && [[ $UDEFAULTS ]] && ! $vpn ; then
 	_notify "Detected Network DNS Reset!" "Resetting to Default DNS…"
 	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 	exit 0
@@ -1236,10 +1333,6 @@ currentdnsname=$(echo "$currentdns" | awk '{print substr($0, index($0,$2))}')
 
 DEFAULT=$(cat "$dfloc")
 
-_beep () {
-	osascript -e "beep"
-}
-
 _abspath () {
 	python - "$1" << 'EOF'
 import os.path
@@ -1255,29 +1348,12 @@ if [[ $1 == "proxyservice" ]] ; then
 		servopt="start"
 	elif [[ $2 == "stop" ]] ; then
 		mprompt="Stop"
-		servopt="start"
+		servopt="stop"
 	elif [[ $2 == "force-restart" ]] ; then
 		mprompt="Restart"
 		servopt="restart"
 	fi
-	rootpw=$(osascript 2>/dev/null << EOT
-tell application "System Events"
-	activate
-	set theLogoPath to ((path to home folder from user domain) as text) & ".cache:dnscrypt:icon.png"
-	set thePW to text returned of (display dialog "Enter your administrator password to $2 the DNSCrypt Service." & ¬
-		return & return & ¬
-		"Please wait for the process to finish. You will need to enter your password again to change the macOS Network configuration." ¬
-		default answer "" ¬
-		with hidden answer ¬
-		buttons {"Cancel", "$mprompt"} ¬
-		default button 2 ¬
-		with title "DNSCrypt Service" ¬
-		with icon file theLogoPath ¬
-		giving up after 180)
-	end tell
-thePW
-EOT
-	)
+	rootpw=$(_rootpw service $2 $mprompt)
 	if [[ $rootpw != "" ]] ; then
 		dcptloc=$(_abspath "$dcploc")
 		brewed=false
@@ -1448,8 +1524,6 @@ fi
 
 echo "---"
 
-nstat=$(echo "$nstat_all" | awk '/^0\/1/ {print $6}')
-
 if ! [[ $localdns ]] ; then
 	localdns="None"
 	ldnsname=""
@@ -1458,13 +1532,24 @@ else
 	[[ "$ldnsname" == "" ]] && ldnsname="Unknown Hostname"
 fi
 
+oneshotline=$(echo "$CONFIG" | grep "^fallback_resolver = ")
+if [[ $oneshotline ]] ; then
+	oneshotres=$(echo "$oneshotline" | awk -F\' '{print $2}')
+fi
+
 _dnsinfo () {
 	echo "--Service | size=11 color=gray"
 	echo "--${service}"
 	echo "-----"
 	if [[ $nstat ]] ; then
 		echo "--Devices | size=11 color=gray"
-		echo "--$interface $nstat"
+		if $vpn ; then
+			echo "--$interface (Default)"
+			echo "--$nstat (TUN/TAP)"
+		else
+			echo "--$interface (Default)"
+			echo "--$nstat (Other)"
+		fi
 	else
 		echo "--Device | size=11 color=gray"
 		echo "--$interface"
@@ -1523,6 +1608,13 @@ _dnsinfo () {
 	else
 		echo "--$millisecs ms"
 	fi
+	if $dnsc || $dnscf ; then
+		if [[ $oneshotres ]] ; then
+			echo "-----"
+			echo "--Internal Fallback Resolver | size=11 color=gray"
+			echo "--$oneshotres"
+		fi
+	fi
 	if $dnsd ; then
 		echo "-----"
 		echo "--Local Area DNS | size=11 color=gray"
@@ -1538,6 +1630,12 @@ _dnsinfo () {
 	do
 		echo "--$sresolv"
 	done
+	if $dnso && ! $vpn ; then
+		echo "-----"
+		echo "--Backup Current $service Resolvers… | terminal=false refresh=true bash=$0 param1=cbackup"
+		echo "-----"
+		_omenu
+	fi
 }
 
 _dnscmenu () {
@@ -1546,6 +1644,11 @@ _dnscmenu () {
 	do
 		echo "--$proxyip"
 	done
+	if [[ $oneshotres ]] ; then
+		echo "-----"
+		echo "--Internal Fallback Resolver | size=11 color=gray"
+		echo "--$oneshotres"
+	fi
 }
 
 _fbmenu () {
@@ -1554,6 +1657,11 @@ _fbmenu () {
 	do
 		echo "--$proxyip"
 	done
+	if [[ $oneshotres ]] ; then
+		echo "-----"
+		echo "--Internal Fallback Resolver | size=11 color=gray"
+		echo "--$oneshotres"
+	fi
 	echo "-----"
 	echo "--Configured Fallback Resolvers | size=11 color=gray"
 	if ! [[ $fbipss ]] ; then
@@ -1593,6 +1701,61 @@ _dfmenu () {
 	echo "--Edit Default DNS Resolvers… | terminal=false bash=/usr/bin/open param1=-a param2=TextEdit param3=$udfloc"
 }
 
+_omenu () {
+	echo "--$service Resolver Backups | size=11 color=gray"
+	rbackuplist=$(find "$cfgdir" -maxdepth 1 -type f -name "$baklocname-d*")
+	if [[ $rbackuplist ]] ; then
+		while read -r rbackup
+		do
+			bpdate=$(basename "$rbackup" | awk -F"-d" '{print $2}')
+			bdate=$(date -j -f "%s" "$bpdate" "%a %d %b %Y %T %Z" 2>/dev/null)
+			! [[ $bdate ]] && bdate="Undated Backup"
+			echo "--$bdate"
+			bresolvers=$(cat "$rbackup")
+			if [[ $bresolvers ]] ; then
+				for bresolver in ${bresolvers}
+				do
+					echo "----$bresolver"
+				done
+				echo "-------"
+				if [[ ${bresolvers} != ${service_resolvers} ]] ; then
+					echo "----Load Resolvers From Backup… | terminal=false refresh=true bash=$0 param1=rload param2=\"$bpdate\""
+				else
+					echo "----Currently Loaded"
+				fi
+			else
+				echo "----Empty"
+			fi
+		done < <(echo "$rbackuplist" | sort -r)
+	fi
+	iball=$(cat "$ibakloc" 2>/dev/null)
+	if [[ $iball ]] ; then
+		bpdate=$(echo "$iball" | grep "^#" | awk '{print $2}')
+		bdate=$(date -j -f "%s" "$bpdate" "%a %d %b %Y %T %Z" 2>/dev/null)
+		! [[ $bdate ]] && bdate="Undated Backup"
+		echo "--$bdate"
+		echo "----Initial Resolver Backup | size=11 color=gray"
+		ibresolvers=$(echo "$iball" | grep -v "^#")
+		if [[ $ibresolvers ]] ; then
+			for ibresolver in ${ibresolvers}
+			do
+				echo "----$ibresolver"
+			done
+			echo "-------"
+			if [[ ${ibresolvers} != ${service_resolvers} ]] ; then
+				echo "----Load Resolvers From Backup… | terminal=false refresh=true bash=$0 param1=rload param2=initial"
+			else
+				echo "----Currently Loaded"
+			fi
+			echo "-----"
+		else
+			echo "----Empty"
+		fi
+	else
+		echo "--No Initial Backup Detected"
+	fi
+}
+
 echo "---"
 
 if $proxy ; then
@@ -1608,7 +1771,11 @@ if $proxy ; then
 			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
 			_dnscmenu
 		else
-			echo "DNSCrypt | color=gray"
+			if $vpn ; then
+				echo "DNSCrypt | color=gray"
+			else
+				echo "DNSCrypt | terminal=false refresh=true bash=$0 param1='${DNSCRYPT_PROXY_IPS}'"
+			fi
 			_dnscmenu
 			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
 			_dnscmenu
@@ -1626,7 +1793,11 @@ if $proxy ; then
 			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
 			_fbmenu
 		else
-			echo "DNSCrypt + Fallback | color=gray"
+			if $vpn ; then
+				echo "DNSCrypt + Fallback | color=gray"
+			else
+				echo "DNSCrypt + Fallback | terminal=false refresh=true bash=$0 param1='${DNSCRYPT_PROXY_IPS} ${ADDITIONAL_IP}'"
+			fi
 			_fbmenu
 			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
 			_fbmenu
@@ -1638,7 +1809,11 @@ if $proxy ; then
 		echo "Other DNS"
 	else
 		if $dnso ; then
-			echo "Default DNS | color=gray"
+			if $vpn ; then
+				echo "Default DNS | color=gray"
+			else
+				echo "Default DNS | terminal=false refresh=true bash=$0 param1='${UDEFAULT}'"
+			fi
 			_dfmenu
 			echo "Other DNS | checked=true"
 			_dnsinfo
@@ -1646,6 +1821,7 @@ if $proxy ; then
 			echo "Default DNS | terminal=false refresh=true bash=$0 param1='${UDEFAULT}'"
 			_dfmenu
 			echo "Other DNS"
+			_omenu
 		fi
 	fi
 else
@@ -1657,8 +1833,13 @@ else
 		echo "Default DNS | checked=true"
 		_dnsinfo
 		echo "Other DNS"
+		_omenu
 	elif $dnso ; then
-		echo "Default DNS"
+		if $vpn ; then
+			echo "Default DNS | color=gray"
+		else
+			echo "Default DNS | terminal=false refresh=true bash=$0 param1='${UDEFAULT}'"
+		fi
 		_dfmenu
 		echo "Other DNS | checked=true"
 		_dnsinfo
@@ -1788,6 +1969,9 @@ _serviceinfo () {
 		tomlaparent=$(dirname "$tomla")
 		echo "--→ $tomlashort | terminal=false bash=/usr/bin/open param1=\"$tomlaparent\""
 	fi
+	echo "-----"
+	echo "--Clear DNS Cache… | terminal=false refresh=true bash=$0 param1=network param2=flush"
+	echo "--Renew DHCP Lease… | terminal=false refresh=true bash=$0 param1=network param2=dhcp"
 	echo "-----"
 	echo "--Open Network Preferences… | terminal=false bash=/usr/bin/open param1=\"/System/Library/PreferencePanes/Network.prefPane\""
 }
