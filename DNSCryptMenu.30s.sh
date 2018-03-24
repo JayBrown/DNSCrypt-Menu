@@ -1233,8 +1233,8 @@ if ! [[ -f "$ibakloc" ]] ; then
 	else
 		iresolvers=$(_service_resolvers "$service")
 		pdate=$(date +%s)
+		echo "# $pdate" > "$ibakloc"
 		if [[ $iresolvers != "None" ]] ; then
-			echo "# $pdate" > "$ibakloc"
 			echo ${iresolvers} >> "$ibakloc" && _notify "✅ Initial backup successful!" "${iresolvers}"
 		fi
 	fi
