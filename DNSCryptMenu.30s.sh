@@ -242,6 +242,7 @@ thePW
 EOT
 	fi
 }
+
 if [[ $1 == "network" ]] ; then
 	if [[ $2 == "flush" ]] ; then
 		_flush
