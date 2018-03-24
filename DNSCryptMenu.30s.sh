@@ -1883,10 +1883,14 @@ _serviceinfo () {
 	fi
 	echo "-----"
 	echo "--Network Status | color=gray size=11"
-	while read -r nstati
-	do
-		echo "--$nstati | font=Menlo size=11"
-	done < <(echo "$nstat_info")
+	if [[ $nstat_info ]] ; then
+		while read -r nstati
+		do
+			echo "--$nstati | font=Menlo size=11"
+		done < <(echo "$nstat_info")
+	else
+		echo "--No Information"
+	fi
 	echo "-----"
 	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
 	if [[ $servers ]] ; then
