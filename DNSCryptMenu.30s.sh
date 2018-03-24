@@ -250,7 +250,7 @@ if [[ $1 == "network" ]] ; then
 	elif [[ $2 == "dhcp" ]] ; then
 		rootpw=$(_rootpw dhcp)
 		if [[ $rootpw ]] ; then
-			echo "$rootpw" | sudo -S 2>/dev/null ipconfig set $interface DHCP || _notify "⚠️ Error!" "Renew DHCP Lease"
+			echo "$rootpw" | sudo -S 2>/dev/null ipconfig set $interface DHCP || { _beep ; _notify "⚠️ Error!" "Renew DHCP Lease" ; }
 			sudo -k && rootpw="" && sleep 1
 		fi
 	fi
@@ -1295,6 +1295,7 @@ _setdefault () {
 }
 
 if ! $proxy && [[ $(echo "$service_resolvers" | grep "$DNSCRYPT_PROXY_IPS") != "" ]] ; then
+	_beep
 	_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
 	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 	exit 0
@@ -1308,6 +1309,7 @@ else
 fi
 
 if [[ $service_resolvers == "None" ]] && [[ $UDEFAULTS ]] && ! $vpn ; then
+	_beep
 	_notify "Detected Network DNS Reset!" "Resetting to Default DNS…"
 	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 	exit 0
