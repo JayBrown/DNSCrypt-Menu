@@ -23,8 +23,8 @@
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/tmp/local.lcars.DNSCryptSourceWatcher.stderr</string>
+	<string>/tmp/local.lcars.DNSCryptSourceWatcher.log</string>
 	<key>StandardOutPath</key>
-	<string>/tmp/local.lcars.DNSCryptSourceWatcher.stdout</string>
+	<string>/tmp/local.lcars.DNSCryptSourceWatcher.log</string>
 </dict>
 </plist>
