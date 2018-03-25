@@ -55,6 +55,8 @@
   * stop: `mv $HOME/.config/dnscrypt/run $HOME/.config/dnscrypt/stop`
   * restart: `mv $HOME/.config/dnscrypt/stop $HOME/.config/dnscrypt/run`
 
+* The subdirectory `./IPFS` is for demonstration purposes only; it contains a LaunchAgent plist and shell script used to watch `./etc/public-resolvers.md`, and after an update add the new file to the IPFS and publish it to the IPNS.
+
 ## Todo
 * Tweaking & testing, lots of testing
 * TOML parsing (blocklists, IPv6 etc.)
