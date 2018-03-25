@@ -1626,7 +1626,7 @@ _dnsinfo () {
 		fi
 		whoisout=$(cat "$cachedir/whois.log")
 		if [[ $whoisout ]] ; then
-			echo "--Whois"
+			echo "--Whois Information"
 			echo "----Open Current Whois Log File… | terminal=false bash=/usr/bin/open param1=\"$cachedir/whois.log\""
 			echo "-------"
 			while read -r line
