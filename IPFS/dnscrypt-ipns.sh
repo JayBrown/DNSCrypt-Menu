@@ -1,12 +1,14 @@
 #!/bin/bash
 
+# DNSCrypt Source Watcher
 # dnscrypt-ipns.sh
 # v1.0.0
+# includes LaunchAgent plist
 #
 # script to add updated resolver source & minisign signature files to the IPFS & publish to IPNS
-# Copyright (c) Joss Brown (pseud.)
+# Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
-# published as part of DNSCrypt Menu: https://github.com/JayBrown/DNSCrypt-Menu
+# published as part of the DNSCrypt Menu repository: https://github.com/JayBrown/DNSCrypt-Menu
 
 export LANG=en_US.UTF-8
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/sw/bin:/sw/sbin:$HOME/bin:$HOME/sbin
