@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.16</bitbar.version>
+# <bitbar.version>1.0.17</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.16
+# version 1.0.17
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.16"
+dcmver="1.0.17"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1631,8 +1631,10 @@ _dnsinfo () {
 			echo "-------"
 			while read -r line
 			do
+				! [[ $line ]] && { echo "-------" ; continue ; }
+				! [[ $(echo "$line" | grep ":") ]] && continue
 				echo -e "----$line | font=Menlo size=11"
-			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^$" | grep -v "^remarks:$")
+			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^remarks:$")
 		else
 			echo "--Whois"
 		fi
