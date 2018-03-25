@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.17</bitbar.version>
+# <bitbar.version>1.0.18</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.17
+# version 1.0.18
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.17"
+dcmver="1.0.18"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1919,18 +1919,6 @@ _serviceinfo () {
 	else
 		echo "----No Information"
 	fi
-	echo "-----"
-	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
-	if [[ $servers ]] ; then
-		echo "--Configured DNSCrypt Servers"
-		while read -r server
-		do
-			echo "----$server | font=Menlo size=11"
-		done < <(echo -e "$servers")
-	else
-		echo "--All DNSCrypt Servers Used"
-	fi
-	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 	logline=$(echo "$CONFIG" | grep "log_file = " | head -n 1)
 	echo "-----"
 	if [[ $logline != "#"* ]] ; then
@@ -1954,14 +1942,14 @@ _serviceinfo () {
 				if [[ $syslogline == "#"* ]] ; then
 					syslog="false"
 				else
-					syslog=$(echo "$syslogline" | awk -F" = " 'print $2}')
+					syslog=$(echo "$syslogline" | awk -F" = " '{print $2}')
 				fi
 				echo "----System Logging: $syslog"
 				echo "-------"
 				today=$(date +"%Y-%m-%d")
 				logtimeouts=$(echo "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
 				logerrors=$(echo "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
-				lowlat=$(echo "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g')
+				lowlat=$(echo "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
 				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
 				if [[ $logerrors ]] ; then
 					echo "----Errors"
@@ -1999,6 +1987,18 @@ _serviceinfo () {
 	else
 		echo "--Logging Disabled"
 	fi
+	echo "-----"
+	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
+	if [[ $servers ]] ; then
+		echo "--Configured DNSCrypt Servers"
+		while read -r server
+		do
+			echo "----$server | font=Menlo size=11"
+		done < <(echo -e "$servers")
+	else
+		echo "--All DNSCrypt Servers Used"
+	fi
+	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 	echo "-----"
 	echo "--Paths"
 	echo "----Executable | size=11 color=gray"
