@@ -2,7 +2,7 @@
 
 # DNSCrypt Source Watcher
 # dnscrypt-ipns.sh
-# v1.0.1
+# v1.0.2
 # includes LaunchAgent plist
 #
 # script to add updated resolver source & minisign signature files to the IPFS & publish to IPNS
@@ -11,7 +11,7 @@
 # published as part of the DNSCrypt Menu repository: https://github.com/JayBrown/DNSCrypt-Menu
 
 export LANG=en_US.UTF-8
-export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/sw/bin:/sw/sbin:$HOME/bin:$HOME/sbin
+export PATH=$PATH:/usr/local/bin:/opt/local/bin:/sw/bin:$HOME/bin
 export IPFS_REUSEPORT=false
 
 etcdir="/usr/local/etc"
@@ -129,6 +129,21 @@ else
 	fi
 fi
 
+sleep 8
+
+for fname in ${fnames}
+do
+	[[ $(echo "$fname" | grep "minisig$") ]] && continue
+	! [[ -f "$cachedir/$fname" ]] && cp "$etcdir/$fname" "$cachedir/$fname"
+	if [[ $(md5 -q "$cachedir/$fname") == $(md5 -q "$etcdir/$fname") ]] ; then
+		echo "No change: $fname"
+		exit 0
+	else
+		echo "File changed: $fname"
+		rm -f "$cachedir/$fname" && cp "$etcdir/$fname" "$cachedir/$fname"
+	fi
+done
+
 _beep
 
 if [[ $(pgrep ipfs) ]] ; then
@@ -138,20 +153,19 @@ else
 	running=false
 	_notify "Sources updated" "Starting IPFS daemon…"
 	ipfs daemon --writable --enable-namesys-pubsub &
+	sleep 5
 fi
-
-sleep 5
 
 if [[ $cobjects ]] ; then
 	while read -r object
 	do
 		oname=$(echo "$object" | awk '{print $1}')
 		ohash=$(echo "$object" | awk '{print $2}')
-		ipfs files rm /"$storedir"/"$oname" && _notify "Removed Files object" "$oname"
+		ipfs files rm "/$storedir/$oname" && _notify "Removed Files object" "$oname"
 		sleep 1
-		ipfs pin rm "$ohash" && _notify "Unpinned node object" "$ohash"
+		ipfs pin rm $ohash && _notify "Unpinned node object" "$ohash"
 		sleep 1
-	done < <(ipfs files ls -l /"$storedir")
+	done < <(ipfs files ls -l "/$storedir")
 else
 	ipfs files mkdir "/$storedir" && _notify "Created new directory" "IPFS Files API"
 fi
@@ -161,17 +175,17 @@ do
 	newhash=$(ipfs add "$etcdir/$fname" | awk '{print $2}')
 	_notify "Added node object" "$newhash"
 	sleep 1
-	ipfs files cp /ipfs/"$newhash" /"$storedir"/"$fname" && _notify "Added Files object" "$fname"
+	ipfs files cp /ipfs/$newhash "/$storedir/$fname" && _notify "Added Files object" "$fname"
 	_cache "$newhash"
 done
 
 dirhash=$(ipfs files ls -l | awk '/'"$storedir"'/{print $2}')
 open "https://ipfs.io/ipfs/$dirhash"
-nobjects=$(ipfs files ls -l /"$storedir")
+nobjects=$(ipfs files ls -l "/$storedir")
 echo "$nobjects" > "$csource"
 
 _notify "Publishing…" "$dirhash"
-ipfs name publish --key="$ipnskeyname" "$dirhash"
+ipfs name publish --key=$ipnskeyname $dirhash
 open "https://ipfs.io/ipns/$ipnskey"
 
 _notify "Starting garbage collection" "Please wait…"
