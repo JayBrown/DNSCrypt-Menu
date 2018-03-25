@@ -2,7 +2,7 @@
 
 # DNSCrypt Source Watcher
 # dnscrypt-ipns.sh
-# v1.0.2
+# v1.0.3
 # includes LaunchAgent plist
 #
 # script to add updated resolver source & minisign signature files to the IPFS & publish to IPNS
@@ -172,14 +172,14 @@ fi
 
 for fname in ${fnames}
 do
-	newhash=$(ipfs add "$etcdir/$fname" | awk '{print $2}')
+	newhash=$(ipfs add -Q "$etcdir/$fname")
 	_notify "Added node object" "$newhash"
 	sleep 1
 	ipfs files cp /ipfs/$newhash "/$storedir/$fname" && _notify "Added Files object" "$fname"
 	_cache "$newhash"
 done
 
-dirhash=$(ipfs files ls -l | awk '/'"$storedir"'/{print $2}')
+dirhash=$(ipfs files ls -l | awk '/'"^$storedir"'/{print $2}')
 open "https://ipfs.io/ipfs/$dirhash"
 nobjects=$(ipfs files ls -l "/$storedir")
 echo "$nobjects" > "$csource"
