@@ -1,21 +1,20 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.15</bitbar.version>
+# <bitbar.version>1.0.16</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
 # <bitbar.image>https://raw.githubusercontent.com/JayBrown/DNSCrypt-Menu/master/img/screengrab.png</bitbar.image>
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
-
 # DNSCrypt Menu
-# version 1.0.15
+# version 1.0.16
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.15"
+dcmver="1.0.16"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -49,6 +48,7 @@ if [[ $1 == "toggle" ]] ; then
 	elif [[ $2 == "start" ]] ; then
 		mv "$cfgdir/stop" "$cfgdir/run"
 	fi
+	exit 0
 fi
 
 if [[ -e "$cfgdir/stop" ]] ; then
@@ -255,6 +255,12 @@ if [[ $1 == "network" ]] ; then
 		fi
 	fi
 	exit 0
+fi
+
+if [[ $1 == "ipcopy" ]] ; then
+	echo "$2" | pbcopy
+	_notify "Copied DNS IP address to clipboard" "$2"
+    exit 0
 fi
 
 CONFIG=$(cat "$TOML" | sed -e 's/^[ \t]*//' | grep -v "^$" | grep -v "##" | grep -v "^# *#$")
@@ -1253,6 +1259,7 @@ if [[ $1 == "cbackup" ]] ; then
 		pdate=$(date +%s)
 		echo ${bresolvers} > "$bakloc-d$pdate" && _notify "✅ Backup successful!" "${bresolvers}"
 	fi
+	exit 0
 fi
 
 if [[ $1 == "rload" ]] ; then
@@ -1590,11 +1597,14 @@ _dnsinfo () {
 		done
 	fi
 	echo "-----"
+	echo "--Public DNS Information | size=11 color=gray"
 	if ! [[ $dnsip ]] ; then
-		dnsip="Unknown IP"
-		dnsname="Unknown Hostname"
+		echo "--Unknown IP"
+		echo "--Unknown Hostname"
+		echo "--No Ping Result"
 	else
 		if [[ $dnsip != $currentdnsip ]] ; then
+			whois $dnsip > "$cachedir/whois.log"
 			dnsname=$(curl -sL "https://ipinfo.io/$dnsip/hostname" 2>/dev/null | xargs)
 			if [[ $(echo "$dnsname" | grep "requests") != "" ]] || [[ $dnsname == "" ]] ; then
 				dnsname=$(curl -sL "https://www.robtex.com/ip/$dnsip.html" 2>/dev/null | grep -m1 "The PTR is" | awk -F"The PTR is " '{print $2}' | awk -F". " '{print $1}' | xargs)
@@ -1605,15 +1615,27 @@ _dnsinfo () {
 			dnsname="$currentdnsname"
 			! [[ $dnsname ]] && dnsname="Unknown Hostname"
 		fi
-	fi
-	echo "--Public DNS Information | size=11 color=gray"
-	echo "--$dnsip"
-	echo "--$dnsname"
-	millisecs=$(ping -c 2 -n -q "$dnsip" 2>/dev/null | tail -n 1 | awk -F/ '{print $5}')
-	if ! [[ $millisecs ]] ; then
-		echo "--No Ping Result"
-	else
-		echo "--$millisecs ms"
+		echo "--$dnsip | href=\"https://www.robtex.com/ip-lookup/$dnsip\""
+		echo "--Copy Address… | alternate=true terminal=false bash=$0 param1=ipcopy param2=\"$dnsip\""
+		echo "--$dnsname"
+		millisecs=$(ping -c 2 -n -q "$dnsip" 2>/dev/null | tail -n 1 | awk -F/ '{print $5}')
+		if [[ $millisecs ]] ; then
+			echo "--$millisecs ms"
+		else
+			echo "--No Ping Result"
+		fi
+		whoisout=$(cat "$cachedir/whois.log")
+		if [[ $whoisout ]] ; then
+			echo "--Whois"
+			echo "----Open Current Whois Log File… | terminal=false bash=/usr/bin/open param1=\"$cachedir/whois.log\""
+			echo "-------"
+			while read -r line
+			do
+				echo -e "----$line | font=Menlo size=11"
+			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^$" | grep -v "^remarks:$")
+		else
+			echo "--Whois"
+		fi
 	fi
 	if $dnsc || $dnscf ; then
 		if [[ $oneshotres ]] ; then
@@ -1769,13 +1791,13 @@ if $proxy ; then
 	if $dnsc ; then
 		echo "DNSCrypt | checked=true"
 		_dnsinfo
-		echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false checked=true bash=$0 param1=default param2=dcp"
+		echo "Set As Default… | alternate=true refresh=true terminal=false checked=true bash=$0 param1=default param2=dcp"
 		_dnsinfo
 	else
 		if ! $dnso ; then
 			echo "DNSCrypt | terminal=false refresh=true bash=$0 param1='${DNSCRYPT_PROXY_IPS}'"
 			_dnscmenu
-			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
+			echo "Set As Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
 			_dnscmenu
 		else
 			if $vpn ; then
@@ -1784,20 +1806,20 @@ if $proxy ; then
 				echo "DNSCrypt | terminal=false refresh=true bash=$0 param1='${DNSCRYPT_PROXY_IPS}'"
 			fi
 			_dnscmenu
-			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
+			echo "Set As Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
 			_dnscmenu
 		fi
 	fi
 	if $dnscf ; then
 		echo "DNSCrypt + Fallback | checked=true"
 		_dnsinfo
-		echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false checked=true bash=$0 param1=default param2=dcpfb"
+		echo "Set As Default… | alternate=true refresh=true terminal=false checked=true bash=$0 param1=default param2=dcpfb"
 		_dnsinfo
 	else
 		if ! $dnso ; then
 			echo "DNSCrypt + Fallback | terminal=false refresh=true bash=$0 param1='${DNSCRYPT_PROXY_IPS} ${ADDITIONAL_IP}'"
 			_fbmenu
-			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
+			echo "Set As Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
 			_fbmenu
 		else
 			if $vpn ; then
@@ -1806,7 +1828,7 @@ if $proxy ; then
 				echo "DNSCrypt + Fallback | terminal=false refresh=true bash=$0 param1='${DNSCRYPT_PROXY_IPS} ${ADDITIONAL_IP}'"
 			fi
 			_fbmenu
-			echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
+			echo "Set As Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
 			_fbmenu
 		fi
 	fi
@@ -1833,9 +1855,9 @@ if $proxy ; then
 	fi
 else
 	echo "DNSCrypt"
-	echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
+	echo "Set As Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcp"
 	echo "DNSCrypt + Fallback"
-	echo "Set As DNSCrypt Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
+	echo "Set As Default… | alternate=true refresh=true terminal=false bash=$0 param1=default param2=dcpfb"
 	if $dnsd ; then
 		echo "Default DNS | checked=true"
 		_dnsinfo
@@ -1934,9 +1956,11 @@ _serviceinfo () {
 				fi
 				echo "----System Logging: $syslog"
 				echo "-------"
-				logtimeouts=$(echo "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g')
-				logerrors=$(echo "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g')
-				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "TIMEOUT$" | sed 's/\[NOTICE\] //g')
+				today=$(date +"%Y-%m-%d")
+				logtimeouts=$(echo "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
+				logerrors=$(echo "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
+				lowlat=$(echo "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g')
+				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
 				if [[ $logerrors ]] ; then
 					echo "----Errors"
 					while read -r line
@@ -1962,6 +1986,10 @@ _serviceinfo () {
 					do
 						echo "----$line | font=Menlo size=11"
 					done < <(echo "$logcont" | sed -e 's/Source \[http.*\] loaded/Source loaded/g' -e 's/dnscrypt-proxy is //g')
+				fi
+				if [[ $lowlat ]] ; then
+					echo "-------"
+					echo "----$lowlat | font=Menlo size=11"
 				fi
 			fi
 		fi
@@ -2004,7 +2032,7 @@ echo "---"
 if $proxy ; then
 	echo "DNSCrypt Service | checked=true terminal=false bash=$0 param1=proxyservice param2=stop"
 	_serviceinfo
-	echo "Force-Restart Service… | checked=true alternate=true terminal=false bash=$0 param1=proxyservice param2=force-restart"
+	echo "Force-Restart… | checked=true alternate=true terminal=false bash=$0 param1=proxyservice param2=force-restart"
 	_serviceinfo
 else
 	echo "DNSCrypt Service | terminal=false bash=$0 param1=proxyservice param2=start"
