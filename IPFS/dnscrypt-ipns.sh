@@ -2,7 +2,7 @@
 
 # DNSCrypt Source Watcher
 # dnscrypt-ipns.sh
-# v1.0.0
+# v1.0.1
 # includes LaunchAgent plist
 #
 # script to add updated resolver source & minisign signature files to the IPFS & publish to IPNS
@@ -175,7 +175,7 @@ ipfs name publish --key="$ipnskeyname" "$dirhash"
 open "https://ipfs.io/ipns/$ipnskey"
 
 _notify "Starting garbage collection" "Please wait…"
-ipfs repo gc &&
+ipfs repo gc
 
 if ! $running ; then
 	ipfs shutdown && _notify "Done" "Shutting down IPFS daemon"
