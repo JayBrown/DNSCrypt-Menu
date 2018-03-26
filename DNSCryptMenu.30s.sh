@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.19</bitbar.version>
+# <bitbar.version>1.0.20</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.19
+# version 1.0.20
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.19"
+dcmver="1.0.20"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1882,6 +1882,7 @@ scrpath="$scrparent/$SCRNAME"
 scrshort="${scrpath/#$HOME/~}"
 
 _serviceinfo () {
+	tomldir=$(dirname "$TOML")
 	echo "--Configure… | terminal=false bash=/usr/bin/open param1=\"$TOML\""
 	echo "-----"
 	! [[ $dcpver ]] && dcpverp="n/a" || dcpverp="v$dcpver"
@@ -1928,7 +1929,13 @@ _serviceinfo () {
 		fi
 		if [[ -f $logloc ]] ; then
 			logcont=$(tail -r "$logloc" | awk '{print} / Source \[/ {exit}' | tail -r)
+			logcfg=$(dnscrypt-proxy -config "$TOML" 2>&1)
+			if ! [[ $(echo "$logcfg" | grep "flag provided but not defined: -config") ]] ; then
+				logcfg=$(echo "$logcfg" | grep -v "\] \[NOTICE\] Source \[.*\] loaded$" | grep -v "\] \[NOTICE\] dnscrypt-proxy $dcpver$")
+				logcont="$logcont\n$logcfg"
+			fi
 			if [[ $logcont ]] ; then
+				logcont=$(echo "$logcont" | grep -v "^$")
 				echo "--Latest Log Data"
 				loglevelline=$(echo "$CONFIG" | grep "log_level = ")
 				if [[ $loglevelline == "#"* ]] ; then
@@ -1947,11 +1954,11 @@ _serviceinfo () {
 				echo "----System Logging: $syslog"
 				echo "-------"
 				today=$(date +"%Y-%m-%d")
-				logtimeouts=$(echo "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
-				logerrors=$(echo "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
-				logfatal=$(echo "$logcont" | grep -F "[FATAL]" | sed -e 's/\[FATAL\] //g' | grep "^\[$today")
-				lowlat=$(echo "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
-				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "\[FATAL\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
+				logtimeouts=$(echo -e "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
+				logerrors=$(echo -e "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
+				logfatal=$(echo -e "$logcont" | grep -F "[FATAL]" | sed -e 's/\[FATAL\] //g' | grep "^\[$today")
+				lowlat=$(echo -e "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
+				logcont=$(echo -e "$logcont" | grep -v "\[ERROR\]" | grep -v "\[FATAL\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
 				if [[ $logfatal ]] ; then
 					echo "----Fatal Errors"
 					while read -r line
@@ -1995,15 +2002,41 @@ _serviceinfo () {
 		echo "--Logging Disabled"
 	fi
 	echo "-----"
-	servers=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
-	if [[ $servers ]] ; then
-		echo "--Configured DNSCrypt Servers"
+	serverscfg=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
+	serverscfg=$(echo -e "$serverscfg" | sort)
+	cd "$tomldir"
+	serversall=$(dnscrypt-proxy -list-all 2>/dev/null)
+	if [[ $serverscfg ]] ; then
+		serversreal=$(dnscrypt-proxy -list 2>/dev/null | sort)
+		serversrej=$(comm -23 <(echo "$serverscfg") <(echo "$serversreal"))
+		echo "--Current DNSCrypt Servers"
+		[[ $serversrej ]] && echo "----Configured | color=gray size=11"
 		while read -r server
 		do
 			echo "----$server | font=Menlo size=11"
-		done < <(echo -e "$servers")
+		done < <(echo "$serverscfg")
+		if [[ $serversrej ]] ; then
+			echo "-------"
+			echo "----Ignored | size=11 color=gray"
+			while read -r server
+			do
+				echo "----$server | font=Menlo size=11"
+			done < <(echo "$serversrej")
+		fi
+		echo "--Available DNSCrypt Servers"
+		resloc=$(basename "$resolversource")
+		echo "----Open Resolver List… | terminal=false bash=/usr/bin/open param1=\"$tomldir/$resloc\""
+		echo "-------"
+		while read -r server
+		do
+			echo "----$server | font=Menlo size=11"
+		done < <(echo "$serversall")
 	else
-		echo "--All DNSCrypt Servers Used"
+		echo "--Current DNSCrypt Servers"
+		while read -r server
+		do
+			echo "----$server | font=Menlo size=11"
+		done < <(echo "$serversall")
 	fi
 	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 	echo "-----"
@@ -2021,7 +2054,6 @@ _serviceinfo () {
 	echo "-------"
 	echo "----Configuration File | size=11 color=gray"
 	shorttoml="${TOML/#$HOME/~}"
-	tomldir=$(dirname "$TOML")
 	echo "----$shorttoml | font=Menlo size=11 terminal=false bash=/usr/bin/open param1=\"$tomldir\""
 	if [[ -h $TOML ]] ; then
 		tomla=$(_abspath "$TOML")
