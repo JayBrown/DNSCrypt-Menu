@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.18</bitbar.version>
+# <bitbar.version>1.0.19</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.18
+# version 1.0.19
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.18"
+dcmver="1.0.19"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1624,7 +1624,7 @@ _dnsinfo () {
 		else
 			echo "--No Ping Result"
 		fi
-		whoisout=$(cat "$cachedir/whois.log")
+		whoisout=$(cat "$cachedir/whois.log" 2>/dev/null)
 		if [[ $whoisout ]] ; then
 			echo "--Whois Information"
 			echo "----Open Current Whois Log File… | terminal=false bash=/usr/bin/open param1=\"$cachedir/whois.log\""
@@ -1634,7 +1634,7 @@ _dnsinfo () {
 				! [[ $line ]] && { echo "-------" ; continue ; }
 				! [[ $(echo "$line" | grep ":") ]] && continue
 				echo -e "----$line | font=Menlo size=11"
-			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^remarks:$")
+			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^remarks:" | grep -v "^Comment:" | grep -v ":$")
 		else
 			echo "--Whois"
 		fi
@@ -1949,8 +1949,16 @@ _serviceinfo () {
 				today=$(date +"%Y-%m-%d")
 				logtimeouts=$(echo "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
 				logerrors=$(echo "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
+				logfatal=$(echo "$logcont" | grep -F "[FATAL]" | sed -e 's/\[FATAL\] //g' | grep "^\[$today")
 				lowlat=$(echo "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
-				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
+				logcont=$(echo "$logcont" | grep -v "\[ERROR\]" | grep -v "\[FATAL\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
+				if [[ $logfatal ]] ; then
+					echo "----Fatal Errors"
+					while read -r line
+					do
+						echo "------$line | font=Menlo size=11"
+					done < <(echo "$logfatal")
+				fi
 				if [[ $logerrors ]] ; then
 					echo "----Errors"
 					while read -r line
@@ -1964,7 +1972,6 @@ _serviceinfo () {
 					do
 						echo "------$line | font=Menlo size=11"
 					done < <(echo "$logtimeouts")
-
 				fi
 				resolversource=$(echo "$logcont" | head -n 1 | awk -F"[][]" '{print $4}')
 				! [[ $resolversource ]] && resolversource="Unknown source"
