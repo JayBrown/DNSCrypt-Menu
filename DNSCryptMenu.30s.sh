@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.20</bitbar.version>
+# <bitbar.version>1.0.21</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.20
+# version 1.0.21
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.20"
+dcmver="1.0.21"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -246,8 +246,11 @@ EOT
 
 CONFIG=$(cat "$TOML" | sed -e 's/^[ \t]*//' | grep -v "^$" | grep -v "##" | grep -v "^# *#$")
 
-DNSCRYPT_PROXY_IPS=$(echo "$CONFIG" | awk -F"'" '/^listen_addresses =/{print $2}' | awk -F: '{print $1}')
-[[ $DNSCRYPT_PROXY_IPS == "" ]] && DNSCRYPT_PROXY_IPS="127.0.0.1"
+DNSCRYPT_PROXY_ALL=$(echo "$CONFIG" | awk -F"'" '/^listen_addresses =/{print $2}')
+DNSCRYPT_PROXY_IPS=$(echo "$DNSCRYPT_PROXY_ALL" | awk -F: '{print $1}')
+! [[ $DNSCRYPT_PROXY_IPS ]] && DNSCRYPT_PROXY_IPS="127.0.0.1"
+dnsport=$(echo "$DNSCRYPT_PROXY_ALL" | awk -F: '{print $2}')
+! [[ $dnsport ]] && dnsport="53"
 
 nstat_all=$(netstat -nr 2>/dev/null)
 
@@ -271,10 +274,11 @@ if [[ $DNSCRYPT_PROXY_IPS != "127.0.0.1" ]] ; then
 		echo "Refresh… | refresh=true"
 		exit 0
 	fi
+	nstat_listen=$(netstat -an 2>/dev/null | grep "$int1\.$int2\.$int3\.$int4\.$dnsport")
 else
 	chnstat=$(echo "$nstat_all" | grep "^127\.0\.0\.1.*lo0")
+	nstat_listen=$(netstat -an 2>/dev/null | grep "127\.0\.0\.1\.$dnsport")
 fi
-nstat_info=$(echo "$chnstat" | awk '{print "Destination:\t"$1"\nGateway:\t\t"$2"\nFlags:\t\t"$3"\nRefs:\t\t"$4"\nUse:\t\t\t"$5"\nNetif:\t\t"$6}')
 
 localdns=$(ipconfig getoption $interface domain_name_server 2>/dev/null)
 
@@ -1605,9 +1609,32 @@ _dnsinfo () {
 	else
 		if [[ $dnsip != $currentdnsip ]] ; then
 			whois $dnsip > "$cachedir/whois.log"
-			dnsname=$(curl -sL "https://ipinfo.io/$dnsip/hostname" 2>/dev/null | xargs)
-			if [[ $(echo "$dnsname" | grep "requests") != "" ]] || [[ $dnsname == "" ]] ; then
-				dnsname=$(curl -sL "https://www.robtex.com/ip/$dnsip.html" 2>/dev/null | grep -m1 "The PTR is" | awk -F"The PTR is " '{print $2}' | awk -F". " '{print $1}' | xargs)
+			dnsname=""
+			method=""
+			dnsname=$(nslookup "$dnsip" 2>/dev/null | awk -F" = " '/name = /{print substr($0, index($0,$2))}' | sed 's/\.$//')
+			if ! [[ $dnsname ]] ; then
+				hostall=$(host "$dnsip" 2>/dev/null)
+				if [[ $hostall ]] && ! [[ $(echo "$hostall" | grep "not found") ]] ; then
+					dnsname=$(echo "$hostall" | awk -F"domain name pointer " '{print substr($0, index($0,$2))}' | sed 's/\.$//')
+				fi
+				if ! [[ $dnsname ]] || ! [[ $hostall ]] || [[ $(echo "$hostall" | grep "not found") ]] ; then
+					dnsname=$(dig +short -x "$dnsip" 2>/dev/null | sed 's/\.$//')
+					if ! [[ $dnsname ]] ; then
+						dnsname=$(curl -sL "https://ipinfo.io/$dnsip/hostname" 2>/dev/null | xargs)
+						if ! [[ $dnsname ]] || [[ $(echo "$dnsname" | grep "requests") ]] ; then
+							dnsname=$(curl -sL "https://www.robtex.com/ip/$dnsip.html" 2>/dev/null | grep -m1 "The PTR is" | awk -F"The PTR is " '{print $2}' | awk -F". " '{print $1}' | xargs)
+							[[ $dnsname ]] && method="robtex"
+						else
+							method="ipinfo"
+						fi
+					else
+						method="dig"
+					fi
+				else
+					method="host"
+				fi
+			else
+				method="nslookup"
 			fi
 			! [[ $dnsname ]] && dnsname="Unknown Hostname"
 			echo "$dnsip $dnsname" > "$currloc"
@@ -1617,7 +1644,11 @@ _dnsinfo () {
 		fi
 		echo "--$dnsip | href=\"https://www.robtex.com/ip-lookup/$dnsip\""
 		echo "--Copy Address… | alternate=true terminal=false bash=$0 param1=ipcopy param2=\"$dnsip\""
-		echo "--$dnsname"
+		if [[ $method ]] ; then
+			echo "--$dnsname ($method)"
+		else
+			echo "--$dnsname (cache)"
+		fi
 		millisecs=$(ping -c 2 -n -q "$dnsip" 2>/dev/null | tail -n 1 | awk -F/ '{print $5}')
 		if [[ $millisecs ]] ; then
 			echo "--$millisecs ms"
@@ -1888,6 +1919,7 @@ _serviceinfo () {
 	! [[ $dcpver ]] && dcpverp="n/a" || dcpverp="v$dcpver"
 	if $proxy ; then
 		echo "--PID $proxystatus ($dcpverp)"
+		echo "--$DNSCRYPT_PROXY_IPS:$dnsport"
 	else
 		echo "--Disabled ($dcpverp)"
 	fi
@@ -1912,11 +1944,22 @@ _serviceinfo () {
 	fi
 	echo "-----"
 	echo "--Network Status"
-	if [[ $nstat_info ]] ; then
-		while read -r nstati
-		do
-			echo "----$nstati | font=Menlo size=11"
-		done < <(echo "$nstat_info")
+	if [[ $chnstat ]] || [[ $nstat_listen ]] ; then
+		if [[ $chnstat ]] ; then
+			while read -r nstati
+			do
+				echo "----$nstati | font=Menlo size=11"
+			done < <(echo "$chnstat")
+			echo "-------"
+		fi
+		if [[ $nstat_listen ]] ; then
+			while read -r nstatl
+			do
+				echo "----$nstatl | font=Menlo size=11"
+			done < <(echo "$nstat_listen")
+		else
+			echo "----$DNSCRYPT_PROXY_IPS.$dnsport NOT LISTENING | font=Menlo size=11"
+		fi
 	else
 		echo "----No Information"
 	fi
@@ -1928,78 +1971,77 @@ _serviceinfo () {
 			logloc="$etcdir/$logloc"
 		fi
 		if [[ -f $logloc ]] ; then
-			logcont=$(tail -r "$logloc" | awk '{print} / Source \[/ {exit}' | tail -r)
-			logcfg=$(dnscrypt-proxy -config "$TOML" 2>&1)
-			if ! [[ $(echo "$logcfg" | grep "flag provided but not defined: -config") ]] ; then
-				logcfg=$(echo "$logcfg" | grep -v "\] \[NOTICE\] Source \[.*\] loaded$" | grep -v "\] \[NOTICE\] dnscrypt-proxy $dcpver$")
-				logcont="$logcont\n$logcfg"
-			fi
-			if [[ $logcont ]] ; then
-				logcont=$(echo "$logcont" | grep -v "^$")
-				echo "--Latest Log Data"
-				loglevelline=$(echo "$CONFIG" | grep "log_level = ")
-				if [[ $loglevelline == "#"* ]] ; then
-					loglevel="2"
-				else
-					loglevel=$(echo "$loglevelline" | awk -F" = " '{print $2}')
-					! [[ $loglevel ]] && loglevel="2"
-				fi
-				echo "----Log Level: $loglevel"
-				syslogline=$(echo "$CONFIG" | grep "use_syslog = ")
-				if [[ $syslogline == "#"* ]] ; then
-					syslog="false"
-				else
-					syslog=$(echo "$syslogline" | awk -F" = " '{print $2}')
-				fi
-				echo "----System Logging: $syslog"
-				echo "-------"
-				today=$(date +"%Y-%m-%d")
-				logtimeouts=$(echo -e "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
-				logerrors=$(echo -e "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
-				logfatal=$(echo -e "$logcont" | grep -F "[FATAL]" | sed -e 's/\[FATAL\] //g' | grep "^\[$today")
-				lowlat=$(echo -e "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
-				logcont=$(echo -e "$logcont" | grep -v "\[ERROR\]" | grep -v "\[FATAL\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
-				if [[ $logfatal ]] ; then
-					echo "----Fatal Errors"
-					while read -r line
-					do
-						echo "------$line | font=Menlo size=11"
-					done < <(echo "$logfatal")
-				fi
-				if [[ $logerrors ]] ; then
-					echo "----Errors"
-					while read -r line
-					do
-						echo "------$line | font=Menlo size=11"
-					done < <(echo "$logerrors")
-				fi
-				if [[ $logtimeouts ]] ; then
-					echo "----Timeouts"
-					while read -r line
-					do
-						echo "------$line | font=Menlo size=11"
-					done < <(echo "$logtimeouts")
-				fi
-				resolversource=$(echo "$logcont" | head -n 1 | awk -F"[][]" '{print $4}')
-				! [[ $resolversource ]] && resolversource="Unknown source"
-				echo "-------"
-				echo "----$resolversource | font=Menlo size=11 href=\"$resolversource\""
+			if $proxy ; then
+				logcont=$(tail -r "$logloc" | awk '{print} / Source \[/ {exit}' | tail -r)
 				if [[ $logcont ]] ; then
+					logcont=$(echo "$logcont" | grep -v "^$")
+					echo "--Latest Log Data"
+					loglevelline=$(echo "$CONFIG" | grep "log_level = ")
+					if [[ $loglevelline == "#"* ]] ; then
+						loglevel="2"
+					else
+						loglevel=$(echo "$loglevelline" | awk -F" = " '{print $2}')
+						! [[ $loglevel ]] && loglevel="2"
+					fi
+					echo "----Log Level: $loglevel"
+					syslogline=$(echo "$CONFIG" | grep "use_syslog = ")
+					if [[ $syslogline == "#"* ]] ; then
+						syslog="false"
+					else
+						syslog=$(echo "$syslogline" | awk -F" = " '{print $2}')
+					fi
+					echo "----System Logging: $syslog"
 					echo "-------"
-					while read -r line
-					do
-						echo "----$line | font=Menlo size=11"
-					done < <(echo "$logcont" | sed -e 's/Source \[http.*\] loaded/Source loaded/g' -e 's/dnscrypt-proxy is //g')
-				fi
-				if [[ $lowlat ]] ; then
+					today=$(date +"%Y-%m-%d")
+					logtimeouts=$(echo -e "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
+					logerrors=$(echo -e "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
+					logfatal=$(echo -e "$logcont" | grep -F "[FATAL]" | sed -e 's/\[FATAL\] //g' | grep "^\[$today")
+					lowlat=$(echo -e "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
+					logcont=$(echo -e "$logcont" | grep -v "\[ERROR\]" | grep -v "\[FATAL\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
+					if [[ $logfatal ]] ; then
+						echo "----Fatal Errors"
+						while read -r line
+						do
+							echo "------$line | font=Menlo size=11"
+						done < <(echo "$logfatal")
+					fi
+					if [[ $logerrors ]] ; then
+						echo "----Errors"
+						while read -r line
+						do
+							echo "------$line | font=Menlo size=11"
+						done < <(echo "$logerrors")
+					fi
+					if [[ $logtimeouts ]] ; then
+						echo "----Timeouts"
+						while read -r line
+						do
+							echo "------$line | font=Menlo size=11"
+						done < <(echo "$logtimeouts")
+					fi
+					resolversource=$(echo "$logcont" | head -n 1 | awk -F"[][]" '{print $4}')
+					! [[ $resolversource ]] && resolversource="Unknown source"
 					echo "-------"
-					echo "----$lowlat | font=Menlo size=11"
+					echo "----$resolversource | font=Menlo size=11 href=\"$resolversource\""
+					if [[ $logcont ]] ; then
+						echo "-------"
+						while read -r line
+						do
+							echo "----$line | font=Menlo size=11"
+						done < <(echo "$logcont" | sed -e 's/Source \[http.*\] loaded/Source loaded/g' -e 's/dnscrypt-proxy is //g')
+					fi
+					if [[ $lowlat ]] ; then
+						echo "-------"
+						echo "----$lowlat | font=Menlo size=11"
+					fi
 				fi
+				echo "--View Full Log… | terminal=false bash=/usr/bin/open param1=\"$logloc\""
+			else
+				echo "--View Log… | terminal=false bash=/usr/bin/open param1=\"$logloc\""
 			fi
+		else
+			echo "--Logging Disabled"
 		fi
-		echo "--View Full Log… | terminal=false bash=/usr/bin/open param1=\"$logloc\""
-	else
-		echo "--Logging Disabled"
 	fi
 	echo "-----"
 	serverscfg=$(echo "$CONFIG" | grep "^server_names =" | awk -F'[][]' '{print $2}' | sed -e 's/, /\\n/g' -e "s/\\'//g")
