@@ -244,25 +244,6 @@ EOT
 	fi
 }
 
-if [[ $1 == "network" ]] ; then
-	if [[ $2 == "flush" ]] ; then
-		_flush
-	elif [[ $2 == "dhcp" ]] ; then
-		rootpw=$(_rootpw dhcp)
-		if [[ $rootpw ]] ; then
-			echo "$rootpw" | sudo -S 2>/dev/null ipconfig set $interface DHCP || { _beep ; _notify "⚠️ Error!" "Renew DHCP Lease" ; }
-			sudo -k && rootpw="" && sleep 1
-		fi
-	fi
-	exit 0
-fi
-
-if [[ $1 == "ipcopy" ]] ; then
-	echo "$2" | pbcopy
-	_notify "Copied DNS IP address to clipboard" "$2"
-    exit 0
-fi
-
 CONFIG=$(cat "$TOML" | sed -e 's/^[ \t]*//' | grep -v "^$" | grep -v "##" | grep -v "^# *#$")
 
 DNSCRYPT_PROXY_IPS=$(echo "$CONFIG" | awk -F"'" '/^listen_addresses =/{print $2}' | awk -F: '{print $1}')
@@ -1209,6 +1190,25 @@ if ! [[ -f "$cachedir/icon.png" ]] ; then
 fi
 [[ -f "$cachedir/icon.base64" ]] && rm -f "$cachedir/icon.base64" 2>/dev/null
 icon_loc="$cachedir/icon.png"
+
+if [[ $1 == "ipcopy" ]] ; then
+	echo "$2" | pbcopy
+	_notify "Copied DNS IP address to clipboard" "$2"
+    exit 0
+fi
+
+if [[ $1 == "network" ]] ; then
+	if [[ $2 == "flush" ]] ; then
+		_flush
+	elif [[ $2 == "dhcp" ]] ; then
+		rootpw=$(_rootpw dhcp)
+		if [[ $rootpw ]] ; then
+			echo "$rootpw" | sudo -S 2>/dev/null ipconfig set $interface DHCP || { _beep ; _notify "⚠️ Error!" "Renew DHCP Lease" ; }
+			sudo -k && rootpw="" && sleep 1
+		fi
+	fi
+	exit 0
+fi
 
 fallbacks=$(cat "$fbloc" | grep -v "^#" | grep -v "^$" | awk '!seen[$0]++' | grep -v "$localdns")
 fbips=$(echo "$fallbacks" | awk '{print $1}')
