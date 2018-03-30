@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.21</bitbar.version>
+# <bitbar.version>1.0.22</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.21
+# version 1.0.22
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.21"
+dcmver="1.0.22"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1456,6 +1456,18 @@ if [[ $1 == "proxyservice" ]] ; then
 	exit 0
 fi
 
+tomldir=$(dirname "$TOML")
+
+if [[ $1 == "opensource" ]] ; then
+	shift
+	for resolversource in ${@}
+	do
+		resloc=$(basename "$resolversource")
+		open "$tomldir/$resloc"
+	done
+	exit 0
+fi
+
 if [[ $# -gt 0 ]] ; then
 	resopt="$*"
 	# shellcheck disable=2086
@@ -1913,7 +1925,6 @@ scrpath="$scrparent/$SCRNAME"
 scrshort="${scrpath/#$HOME/~}"
 
 _serviceinfo () {
-	tomldir=$(dirname "$TOML")
 	echo "--Configure… | terminal=false bash=/usr/bin/open param1=\"$TOML\""
 	echo "-----"
 	! [[ $dcpver ]] && dcpverp="n/a" || dcpverp="v$dcpver"
@@ -2019,16 +2030,12 @@ _serviceinfo () {
 							echo "------$line | font=Menlo size=11"
 						done < <(echo "$logtimeouts")
 					fi
-					resolversource=$(echo "$logcont" | head -n 1 | awk -F"[][]" '{print $4}')
-					! [[ $resolversource ]] && resolversource="Unknown source"
-					echo "-------"
-					echo "----$resolversource | font=Menlo size=11 href=\"$resolversource\""
 					if [[ $logcont ]] ; then
 						echo "-------"
 						while read -r line
 						do
 							echo "----$line | font=Menlo size=11"
-						done < <(echo "$logcont" | sed -e 's/Source \[http.*\] loaded/Source loaded/g' -e 's/dnscrypt-proxy is //g')
+						done < <(echo "$logcont" | sed 's/dnscrypt-proxy is //g')
 					fi
 					if [[ $lowlat ]] ; then
 						echo "-------"
@@ -2048,6 +2055,7 @@ _serviceinfo () {
 	serverscfg=$(echo -e "$serverscfg" | sort)
 	cd "$tomldir"
 	serversall=$(dnscrypt-proxy -list-all 2>/dev/null)
+	resolversources=$(echo "$CONFIG" | grep "url = " | grep -v "# url = " | grep -v "#  url = " | awk -F\' '{print $2}' | xargs)
 	if [[ $serverscfg ]] ; then
 		serversreal=$(dnscrypt-proxy -list 2>/dev/null | sort)
 		serversrej=$(comm -23 <(echo "$serverscfg") <(echo "$serversreal"))
@@ -2066,8 +2074,7 @@ _serviceinfo () {
 			done < <(echo "$serversrej")
 		fi
 		echo "--Available DNSCrypt Servers"
-		resloc=$(basename "$resolversource")
-		echo "----Open Resolver List… | terminal=false bash=/usr/bin/open param1=\"$tomldir/$resloc\""
+		echo "----Open Resolver Lists… | terminal=false bash=$0 param1=opensource param2=\"${resolversources}\""
 		echo "-------"
 		while read -r server
 		do
@@ -2079,6 +2086,13 @@ _serviceinfo () {
 		do
 			echo "----$server | font=Menlo size=11"
 		done < <(echo "$serversall")
+	fi
+	if [[ $resolversources ]] ; then
+		echo "--Configured Resolver Sources"
+		for resolversource in ${resolversources}
+		do
+			echo "----$resolversource | font=Menlo size=11 href=\"$resolversource\""
+		done
 	fi
 	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
 	echo "-----"
