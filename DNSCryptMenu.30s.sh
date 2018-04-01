@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.22</bitbar.version>
+# <bitbar.version>1.0.23</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.22
+# version 1.0.23
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.22"
+dcmver="1.0.23"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1195,9 +1195,14 @@ fi
 [[ -f "$cachedir/icon.base64" ]] && rm -f "$cachedir/icon.base64" 2>/dev/null
 icon_loc="$cachedir/icon.png"
 
-if [[ $1 == "ipcopy" ]] ; then
-	echo "$2" | pbcopy
-	_notify "Copied DNS IP address to clipboard" "$2"
+if [[ $1 == "dnscopy" ]] ; then
+	if [[ $2 == "ip" ]] ; then
+		copynote="IP address"
+	elif [[ $2 == "hostname" ]] ; then
+		copynote="hostname"
+	fi
+	echo -n "$3" | pbcopy
+	_notify "Copied DNS $copynote to clipboard" "$3"
     exit 0
 fi
 
@@ -1304,13 +1309,6 @@ SCRNAME=$(basename $0)
 _setdefault () {
 	networksetup -setdnsservers "$service" ${UDEFAULT} 2>/dev/null && _flush 2>/dev/null
 }
-
-if ! $proxy && [[ $(echo "$service_resolvers" | grep "$DNSCRYPT_PROXY_IPS") != "" ]] ; then
-	_beep
-	_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
-	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
-	exit 0
-fi
 
 nstat=$(echo "$nstat_all" | awk '/^0\/1/ {print $6}')
 if [[ $(echo "$nstat" | grep 'tun\|tap') == "" ]] ; then
@@ -1453,6 +1451,13 @@ if [[ $1 == "proxyservice" ]] ; then
 			fi
 		fi
 	fi
+	exit 0
+fi
+
+if ! $proxy && [[ $(echo "$service_resolvers" | grep "$DNSCRYPT_PROXY_IPS") != "" ]] ; then
+	_beep
+	_notify "DNSCrypt Service Error!" "Resetting to Default DNS…"
+	_setdefault && /usr/bin/open "bitbar://refreshPlugin?name=$SCRNAME"
 	exit 0
 fi
 
@@ -1613,14 +1618,14 @@ _dnsinfo () {
 		done
 	fi
 	echo "-----"
-	echo "--Public DNS Information | size=11 color=gray"
 	if ! [[ $dnsip ]] ; then
+		echo "--Public DNS Information | size=11 color=gray"
 		echo "--Unknown IP"
 		echo "--Unknown Hostname"
 		echo "--No Ping Result"
 	else
 		if [[ $dnsip != $currentdnsip ]] ; then
-			whois $dnsip > "$cachedir/whois.log"
+			whois $dnsip > "$cachedir/whois.log" 2>/dev/null
 			dnsname=""
 			method=""
 			dnsname=$(nslookup "$dnsip" 2>/dev/null | awk -F" = " '/name = /{print substr($0, index($0,$2))}' | sed 's/\.$//')
@@ -1654,12 +1659,15 @@ _dnsinfo () {
 			dnsname="$currentdnsname"
 			! [[ $dnsname ]] && dnsname="Unknown Hostname"
 		fi
+		! [[ $method ]] && method="cache"
+		echo "--Public DNS Information ($method)| size=11 color=gray"
 		echo "--$dnsip | href=\"https://www.robtex.com/ip-lookup/$dnsip\""
-		echo "--Copy Address… | alternate=true terminal=false bash=$0 param1=ipcopy param2=\"$dnsip\""
-		if [[ $method ]] ; then
-			echo "--$dnsname ($method)"
+		echo "--Copy Address… | alternate=true terminal=false bash=$0 param1=dnscopy param2=ip param3=\"$dnsip\""
+		if [[ $dnsname != "Unknown Hostname" ]] ; then
+			echo "--$dnsname | href=\"https://www.robtex.com/dns-lookup/$dnsname\""
+			echo "--Copy Hostname… | alternate=true terminal=false bash=$0 param1=dnscopy param2=hostname param3=\"$dnsname\""
 		else
-			echo "--$dnsname (cache)"
+			echo "--$dnsname"
 		fi
 		millisecs=$(ping -c 2 -n -q "$dnsip" 2>/dev/null | tail -n 1 | awk -F/ '{print $5}')
 		if [[ $millisecs ]] ; then
