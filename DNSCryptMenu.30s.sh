@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.23</bitbar.version>
+# <bitbar.version>1.0.24</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.23
+# version 1.0.24
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.23"
+dcmver="1.0.24"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -170,7 +170,7 @@ else
 	fi
 fi
 
-service=$(networksetup -listnetworkserviceorder | grep -B1 "$interface" | head -1 | awk -F")" '{print substr($0, index($0,$2))}' | sed 's/^ //')
+service=$(networksetup -listnetworkserviceorder | grep -B1 "Device: $interface)$" | head -1 | awk -F")" '{print substr($0, index($0,$2))}' | xargs)
 
 _flush () {
 	if [[ $osmajor -le 8 ]] ; then
@@ -1631,10 +1631,10 @@ _dnsinfo () {
 			dnsname=$(nslookup "$dnsip" 2>/dev/null | awk -F" = " '/name = /{print substr($0, index($0,$2))}' | sed 's/\.$//')
 			if ! [[ $dnsname ]] ; then
 				hostall=$(host "$dnsip" 2>/dev/null)
-				if [[ $hostall ]] && ! [[ $(echo "$hostall" | grep "not found") ]] ; then
+				if [[ $hostall ]] && ! [[ $(echo "$hostall" | grep "not found") ]] && ! [[ $(echo "$hostall" | grep "timed out") ]] ; then
 					dnsname=$(echo "$hostall" | awk -F"domain name pointer " '{print substr($0, index($0,$2))}' | sed 's/\.$//')
 				fi
-				if ! [[ $dnsname ]] || ! [[ $hostall ]] || [[ $(echo "$hostall" | grep "not found") ]] ; then
+				if ! [[ $dnsname ]] || ! [[ $hostall ]] || [[ $(echo "$hostall" | grep "not found") ]] || [[ $(echo "$hostall" | grep "timed out") ]] ; then
 					dnsname=$(dig +short -x "$dnsip" 2>/dev/null | sed 's/\.$//')
 					if ! [[ $dnsname ]] ; then
 						dnsname=$(curl -sL "https://ipinfo.io/$dnsip/hostname" 2>/dev/null | xargs)
@@ -1669,12 +1669,6 @@ _dnsinfo () {
 		else
 			echo "--$dnsname"
 		fi
-		millisecs=$(ping -c 2 -n -q "$dnsip" 2>/dev/null | tail -n 1 | awk -F/ '{print $5}')
-		if [[ $millisecs ]] ; then
-			echo "--$millisecs ms"
-		else
-			echo "--No Ping Result"
-		fi
 		whoisout=$(cat "$cachedir/whois.log" 2>/dev/null)
 		if [[ $whoisout ]] ; then
 			echo "--Whois Information"
@@ -1688,6 +1682,12 @@ _dnsinfo () {
 			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^remarks:" | grep -v "^Comment:" | grep -v ":$")
 		else
 			echo "--Whois"
+		fi
+		millisecs=$(ping -c 2 -n -q "$dnsip" 2>/dev/null | tail -n 1 | awk -F/ '{print $5}')
+		if [[ $millisecs ]] ; then
+			echo "--$millisecs ms"
+		else
+			echo "--No Ping Result"
 		fi
 	fi
 	if $dnsc || $dnscf ; then
@@ -1970,6 +1970,8 @@ _serviceinfo () {
 				echo "----$nstati | font=Menlo size=11"
 			done < <(echo "$chnstat")
 			echo "-------"
+			liface=$(echo "$chnstat" | rev | awk '{print $1}' | rev)
+			ifcfg=$(ifconfig "$liface")
 		fi
 		if [[ $nstat_listen ]] ; then
 			while read -r nstatl
@@ -1978,6 +1980,13 @@ _serviceinfo () {
 			done < <(echo "$nstat_listen")
 		else
 			echo "----$DNSCRYPT_PROXY_IPS.$dnsport NOT LISTENING | font=Menlo size=11"
+		fi
+		if [[ $ifcfg ]] ; then
+			echo "-------"
+			while read -r ifcfgline
+			do
+				echo "----$ifcfgline | font=Menlo size=11"
+			done < <(echo "$ifcfg")
 		fi
 	else
 		echo "----No Information"
