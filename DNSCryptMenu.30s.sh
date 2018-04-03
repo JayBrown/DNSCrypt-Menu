@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.24</bitbar.version>
+# <bitbar.version>1.0.25</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.24
+# version 1.0.25
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.24"
+dcmver="1.0.25"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -2111,7 +2111,7 @@ _serviceinfo () {
 			echo "----$resolversource | font=Menlo size=11 href=\"$resolversource\""
 		done
 	fi
-	echo "--DNSCrypt Public Server List… | href=https://dnscrypt.info/public-servers"
+	echo "--DNSCrypt Public Server List | href=https://dnscrypt.info/public-servers"
 	echo "-----"
 	echo "--Paths"
 	echo "----Executable | size=11 color=gray"
@@ -2178,5 +2178,17 @@ echo "--Edit Plugin… | terminal=false bash=/usr/bin/open param1=\"$scrpath\""
 echo "--Open Configuration Directory… | terminal=false bash=/usr/bin/open param1=\"$cfgdir\""
 echo "--Open Cache Directory… | terminal=false bash=/usr/bin/open param1=\"$cachedir\""
 echo "-----"
-echo "--GitHub Repository… | href=https://github.com/JayBrown/DNSCrypt-Menu"
+echo "--External Links"
+echo "----DNSCrypt Menu | size=11 color=gray"
+echo "----GitHub Repository | href=https://github.com/JayBrown/DNSCrypt-Menu"
+echo "----Issues | href=https://github.com/JayBrown/DNSCrypt-Menu/issues"
+echo "-------"
+echo "----dnscrypt-proxy | size=11 color=gray"
+echo "----GitHub Repository | href=https://github.com/jedisct1/dnscrypt-proxy"
+echo "----Documentation | href=https://github.com/jedisct1/dnscrypt-proxy/wiki"
+echo "----Issues | href=https://github.com/jedisct1/dnscrypt-proxy/issues"
+echo "-------"
+echo "----DNSCrypt | size=11 color=gray"
+echo "----Homepage | href= https://dnscrypt.info"
+echo "-----"
 echo "Refresh… | refresh=true"
