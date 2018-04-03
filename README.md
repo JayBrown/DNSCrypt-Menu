@@ -16,12 +16,11 @@
 * configure additional resolvers for **DNSCrypt + Fallback** setting
 * configure resolvers for the **Default DNS** setting
   * _Note_: at initial run the user's original DNS resolvers, as specified in the **Network** preference pane, are saved to `$HOME/.config/dnscrypt/backup-*`, followed by the service name and `-initial`, e.g. `backup-Wi-Fi-initial`; backed-up resolvers can be reloaded at any time.
-* display DNS information: service, devices (incl. TUN/TAP), current resolvers (`/etc/resolv.conf`), configured resolvers (Network preferences), internal fallback resolver (DNSCrypt), configured fallback resolvers (DNSCrypt Menu), public DNS IP with hostname & ping, local area DNS
-* display DNSCrypt servers as specified in the .toml configuration file
-* display DNSCrypt executable and service information: owner, PID, version, network status, servers, executable path, config path, latest log & output, full log, log settings
+* display DNS information: service, devices (incl. TUN/TAP), current resolvers (`/etc/resolv.conf`), configured resolvers (Network preferences), internal fallback resolver (DNSCrypt), configured fallback resolvers (DNSCrypt Menu), public DNS IP with hostname, Whois & ping, local area DNS
+* display DNSCrypt executable and service information: owner, PID, version, network status, used resolvers, ignored resolvers, executable path, config path, latest log & output, full log, log settings
 * backup and reload resolvers from **Other DNS** setups (excluding VPN tunnels)
 * options to clear DNS cache or renew DHCP lease
-* links to current resolver source, this repository, and a list of available public DNSCrypt server
+* links to robtex (IP & hostname), current resolver source, this repository, the dnscrypt-proxy repository, and a list of available public DNSCrypt server
 
 ![screengrab](https://github.com/JayBrown/DNSCrypt-Menu/blob/master/img/screengrab.png)
 
@@ -32,6 +31,7 @@
   * install and configure BitBar
   * quit BitBar
 * clone the **DNSCrypt Menu** GitHub repository and symlink `DNSCryptMenu.30s.sh` to your BitBar plugins folder
+  * refresh clone for updates
 * install **[terminal-notifier](https://github.com/julienXX/terminal-notifier)** (optional, recommended)
 * launch BitBar
 
@@ -55,9 +55,12 @@
   * stop: `mv $HOME/.config/dnscrypt/run $HOME/.config/dnscrypt/stop`
   * restart: `mv $HOME/.config/dnscrypt/stop $HOME/.config/dnscrypt/run`
 
+* This BitBar plugin has only been tested on El Capitan (OS X 10.11.6); IPv6 network setups have _not_ been tested; please report any issues or create a **pull request**.
+
 ## Todo
 * Tweaking & testing, lots of testing
-* TOML parsing (blocklists, IPv6 etc.)
+* script comments
+* TOML parsing (blocklists, IPv6 etc.)?
 
 ## Thank you
 Thank you to **[Frank Denis](https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher)** for kicking this off with his original plugin.
