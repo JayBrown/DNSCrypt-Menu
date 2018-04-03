@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.25</bitbar.version>
+# <bitbar.version>1.0.26</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.25
+# version 1.0.26
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.25"
+dcmver="1.0.26"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1576,18 +1576,31 @@ _dnsinfo () {
 	echo "--Service | size=11 color=gray"
 	echo "--${service}"
 	echo "-----"
+	devifcfg=$(ifconfig $interface 2>/dev/null | sed "s/^$interface: //")
 	if [[ $nstat ]] ; then
 		echo "--Devices | size=11 color=gray"
+		echo "--$interface (Default)"
+		while read -r devifcfgline
+		do
+			echo "----$devifcfgline | font=Menlo size=11"
+		done < <(echo "$devifcfg")
+		nstatifcfg=$(ifconfig $nstat 2>/dev/null | sed "s/^$nstat: //")
 		if $vpn ; then
-			echo "--$interface (Default)"
 			echo "--$nstat (TUN/TAP)"
 		else
-			echo "--$interface (Default)"
 			echo "--$nstat (Other)"
 		fi
+		while read -r nstatifcfgline
+		do
+			echo "----$nstatifcfgline | font=Menlo size=11"
+		done < <(echo "$nstatifcfg")
 	else
 		echo "--Device | size=11 color=gray"
 		echo "--$interface"
+		while read -r devifcfgline
+		do
+			echo "----$devifcfgline | font=Menlo size=11"
+		done < <(echo "$devifcfg")
 	fi
 	echo "-----"
 	echo "--Current DNS Resolvers | size=11 color=gray"
@@ -1971,7 +1984,7 @@ _serviceinfo () {
 			done < <(echo "$chnstat")
 			echo "-------"
 			liface=$(echo "$chnstat" | rev | awk '{print $1}' | rev)
-			ifcfg=$(ifconfig "$liface")
+			ifcfg=$(ifconfig "$liface" 2>/dev/null | sed "s/^$liface: //")
 		fi
 		if [[ $nstat_listen ]] ; then
 			while read -r nstatl
