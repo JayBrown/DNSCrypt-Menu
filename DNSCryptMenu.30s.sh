@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.26</bitbar.version>
+# <bitbar.version>1.0.27</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.26
+# version 1.0.27
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.26"
+dcmver="1.0.27"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1241,7 +1241,7 @@ _service_resolvers () {
 	fi
 }
 
-baklocname="backup-$service"
+baklocname=$(echo "backup-$service" | sed -e 's/:/-/g' -e 's,/,-,g' -e 's/ /_/g')
 bakloc="$cfgdir/$baklocname"
 ibakloc="$bakloc-initial"
 if ! [[ -f "$ibakloc" ]] ; then
