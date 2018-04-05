@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.27</bitbar.version>
+# <bitbar.version>1.0.28</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.27
+# version 1.0.28
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.27"
+dcmver="1.0.28"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -244,7 +244,7 @@ EOT
 	fi
 }
 
-CONFIG=$(cat "$TOML" | sed -e 's/^[ \t]*//' | grep -v "^$" | grep -v "##" | grep -v "^# *#$")
+CONFIG=$(cat "$TOML" | sed -e 's/^[ \t]*//' | grep -v -e "^$" -e "##" -e "^# *#$")
 
 DNSCRYPT_PROXY_ALL=$(echo "$CONFIG" | awk -F"'" '/^listen_addresses =/{print $2}')
 DNSCRYPT_PROXY_IPS=$(echo "$DNSCRYPT_PROXY_ALL" | awk -F: '{print $1}')
@@ -1219,7 +1219,7 @@ if [[ $1 == "network" ]] ; then
 	exit 0
 fi
 
-fallbacks=$(cat "$fbloc" | grep -v "^#" | grep -v "^$" | awk '!seen[$0]++' | grep -v "$localdns")
+fallbacks=$(cat "$fbloc" | grep -v -e "^#" -e "^$" | awk '!seen[$0]++' | grep -v "$localdns")
 fbips=$(echo "$fallbacks" | awk '{print $1}')
 fbipss=$(echo "$fbips" | sort)
 ADDITIONAL_IP=$(echo "$fbips" | xargs)
@@ -1286,7 +1286,7 @@ if [[ $1 == "rload" ]] ; then
 	exit 0
 fi
 
-defaultdns=$(cat "$udfloc" | grep -v "^#" | grep -v "^$" | grep -v "^empty empty$" | awk '!seen[$0]++' | grep -v "$localdns")
+defaultdns=$(cat "$udfloc" | grep -v -e "^#" -e "^$" -e "^empty empty$" | awk '!seen[$0]++' | grep -v "$localdns")
 if ! [[ $defaultdns ]] ; then
 	UDEFAULT="empty"
 	UDEFAULTS=""
@@ -1576,7 +1576,7 @@ _dnsinfo () {
 	echo "--Service | size=11 color=gray"
 	echo "--${service}"
 	echo "-----"
-	devifcfg=$(ifconfig $interface 2>/dev/null | sed "s/^$interface: //")
+	devifcfg=$(ifconfig $interface 2>/dev/null | sed 's/^'"$interface"': //')
 	if [[ $nstat ]] ; then
 		echo "--Devices | size=11 color=gray"
 		echo "--$interface (Default)"
@@ -1584,7 +1584,7 @@ _dnsinfo () {
 		do
 			echo "----$devifcfgline | font=Menlo size=11"
 		done < <(echo "$devifcfg")
-		nstatifcfg=$(ifconfig $nstat 2>/dev/null | sed "s/^$nstat: //")
+		nstatifcfg=$(ifconfig $nstat 2>/dev/null | sed 's/^'"$nstat"': //')
 		if $vpn ; then
 			echo "--$nstat (TUN/TAP)"
 		else
@@ -1692,7 +1692,7 @@ _dnsinfo () {
 				! [[ $line ]] && { echo "-------" ; continue ; }
 				! [[ $(echo "$line" | grep ":") ]] && continue
 				echo -e "----$line | font=Menlo size=11"
-			done < <(echo "$whoisout" | grep -v "^#" | grep -v "^%" | grep -v "^remarks:" | grep -v "^Comment:" | grep -v ":$")
+			done < <(echo "$whoisout" | grep -v -e "^#" -e "^%" -e "^remarks:" -e "^Comment:" -e ":$")
 		else
 			echo "--Whois"
 		fi
@@ -1984,7 +1984,7 @@ _serviceinfo () {
 			done < <(echo "$chnstat")
 			echo "-------"
 			liface=$(echo "$chnstat" | rev | awk '{print $1}' | rev)
-			ifcfg=$(ifconfig "$liface" 2>/dev/null | sed "s/^$liface: //")
+			ifcfg=$(ifconfig "$liface" 2>/dev/null | sed 's/^'"$liface"': //')
 		fi
 		if [[ $nstat_listen ]] ; then
 			while read -r nstatl
@@ -2037,8 +2037,9 @@ _serviceinfo () {
 					logtimeouts=$(echo -e "$logcont" | grep "TIMEOUT$" | sed -e 's/TIMEOUT$//g' -e 's/\[NOTICE\] //g' | grep "^\[$today")
 					logerrors=$(echo -e "$logcont" | grep -F "[ERROR]" | sed -e 's/\[ERROR\] //g' | grep "^\[$today")
 					logfatal=$(echo -e "$logcont" | grep -F "[FATAL]" | sed -e 's/\[FATAL\] //g' | grep "^\[$today")
+					logwarnings=$(echo -e "$logcont" | grep -F "[WARNING]" | sed -e 's/\[WARNING\] //g' | grep "^\[$today" | sed -e "s/ -- if you don't manage this server, tell the server operator about it/ -- notify operator/g")
 					lowlat=$(echo -e "$logcont" | grep "\] \[NOTICE\] Server with the lowest initial latency: " | sed -e '$!d' -e 's/\[NOTICE\] //g' -e 's/Server with the lowest/Lowest/')
-					logcont=$(echo -e "$logcont" | grep -v "\[ERROR\]" | grep -v "\[FATAL\]" | grep -v "TIMEOUT$" | grep -v "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
+					logcont=$(echo -e "$logcont" | grep -v -e "\[ERROR\]" -e "\[FATAL\]" -e "\[WARNING\]" -e "TIMEOUT$" -e "\] \[NOTICE\] Server with the lowest initial latency: " | sed 's/\[NOTICE\] //g')
 					if [[ $logfatal ]] ; then
 						echo "----Fatal Errors"
 						while read -r line
@@ -2052,6 +2053,13 @@ _serviceinfo () {
 						do
 							echo "------$line | font=Menlo size=11"
 						done < <(echo "$logerrors")
+					fi
+					if [[ $logwarnings ]] ; then
+						echo "----Warnings"
+						while read -r line
+						do
+							echo "------$line | font=Menlo size=11"
+						done < <(echo "$logwarnings")
 					fi
 					if [[ $logtimeouts ]] ; then
 						echo "----Timeouts"
@@ -2085,7 +2093,7 @@ _serviceinfo () {
 	serverscfg=$(echo -e "$serverscfg" | sort)
 	cd "$tomldir"
 	serversall=$(dnscrypt-proxy -list-all 2>/dev/null)
-	resolversources=$(echo "$CONFIG" | grep "url = " | grep -v "# url = " | grep -v "#  url = " | awk -F\' '{print $2}' | xargs)
+	resolversources=$(echo "$CONFIG" | grep "url = " | grep -v -e "# url = " -e "#  url = " | awk -F\' '{print $2}' | xargs)
 	if [[ $serverscfg ]] ; then
 		serversreal=$(dnscrypt-proxy -list 2>/dev/null | sort)
 		serversrej=$(comm -23 <(echo "$serverscfg") <(echo "$serversreal"))
