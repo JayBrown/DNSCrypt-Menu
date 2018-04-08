@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.30</bitbar.version>
+# <bitbar.version>1.0.31</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.30
+# version 1.0.31
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.30"
+dcmver="1.0.31"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1219,7 +1219,11 @@ if [[ $1 == "network" ]] ; then
 	exit 0
 fi
 
-fallbacks=$(cat "$fbloc" | grep -v -e "^#" -e "^$" | awk '!seen[$0]++' | grep -v "$localdns")
+if [[ $localdns ]] ; then
+	fallbacks=$(cat "$fbloc" | grep -v -e "^#" -e "^$" | awk '!seen[$0]++' | grep -v "$localdns")
+else
+	fallbacks=$(cat "$fbloc" | grep -v -e "^#" -e "^$" | awk '!seen[$0]++')
+fi
 fbips=$(echo "$fallbacks" | awk '{print $1}')
 fbipss=$(echo "$fbips" | sort)
 ADDITIONAL_IP=$(echo "$fbips" | xargs)
@@ -1286,7 +1290,11 @@ if [[ $1 == "rload" ]] ; then
 	exit 0
 fi
 
-defaultdns=$(cat "$udfloc" | grep -v -e "^#" -e "^$" -e "^empty empty$" | awk '!seen[$0]++' | grep -v "$localdns")
+if [[ $localdns ]] ; then
+	defaultdns=$(cat "$udfloc" | grep -v -e "^#" -e "^$" -e "^empty empty$" | awk '!seen[$0]++' | grep -v "$localdns")
+else
+	defaultdns=$(cat "$udfloc" | grep -v -e "^#" -e "^$" -e "^empty empty$" | awk '!seen[$0]++')
+fi
 if ! [[ $defaultdns ]] ; then
 	UDEFAULT="empty"
 	UDEFAULTS=""
@@ -1492,7 +1500,7 @@ fi
 _current_resolvers () {
 	confrs=$(cat /etc/resolv.conf | awk '/^nameserver /{print $2}' | awk '!seen[$0]++' | sort)
 	[[ $confrs == "" ]] && exit 0
-	confrs=$(echo "$confrs" | grep -v "$localdns")
+	[[ $localdns ]] && confrs=$(echo "$confrs" | grep -v "$localdns")
 	ips=""
 	while read -r confr
 	do
