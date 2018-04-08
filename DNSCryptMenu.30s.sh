@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.29</bitbar.version>
+# <bitbar.version>1.0.30</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.29
+# version 1.0.30
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.29"
+dcmver="1.0.30"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -1647,7 +1647,7 @@ _dnsinfo () {
 			whois $dnsip > "$cachedir/whois.log" 2>/dev/null
 			dnsname=""
 			method=""
-			dnsname=$(nslookup "$dnsip" 2>/dev/null | awk -F" = " '/name = /{print substr($0, index($0,$2))}' | sed 's/\.$//')
+			dnsname=$(nslookup "$dnsip" 2>/dev/null | grep -v "canonical name = " | awk -F" = " '/name = /{print substr($0, index($0,$2))}' | sed 's/\.$//')
 			if ! [[ $dnsname ]] ; then
 				hostall=$(host "$dnsip" 2>/dev/null)
 				if [[ $hostall ]] && ! [[ $(echo "$hostall" | grep "not found") ]] && ! [[ $(echo "$hostall" | grep "timed out") ]] ; then
