@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # <bitbar.title>DNSCrypt Menu</bitbar.title>
-# <bitbar.version>1.0.31</bitbar.version>
+# <bitbar.version>1.0.32</bitbar.version>
 # <bitbar.author>Joss Brown</bitbar.author>
 # <bitbar.author.github>JayBrown</bitbar.author.github>
 # <bitbar.desc>Manage DNSCrypt from the macOS menu bar</bitbar.desc>
@@ -9,12 +9,12 @@
 # <bitbar.url>https://github.com/JayBrown/DNSCrypt-Menu</bitbar.url>
 
 # DNSCrypt Menu
-# version 1.0.31
+# version 1.0.32
 # Copyright (c) 2018 Joss Brown (pseud.)
 # License: MIT+
 # derived from: dnscrypt-proxy-switcher by Frank Denis (jedisct1) https://github.com/jedisct1/bitbar-dnscrypt-proxy-switcher
 
-dcmver="1.0.31"
+dcmver="1.0.32"
 dcmvadd=""
 
 export LANG=en_US.UTF-8
@@ -285,7 +285,7 @@ localdns=$(ipconfig getoption $interface domain_name_server 2>/dev/null)
 fbloc="$cfgdir/cdefault"
 dfloc="$cfgdir/pdefault"
 udfloc="$cfgdir/udefault"
-dfb="# FALLBACK SERVER LIST FOR DNSCRYPT\n# Please enter the DNS IP address in column 1.\n# You may add a description in column 2.\n# Columns must be separated by a whitespace character.\n\n9.9.9.9 Quad9"
+dfb="# FALLBACK SERVER LIST FOR DNSCRYPT\n# Please enter the DNS IP address in column 1.\n# You may add a description in column 2.\n# Columns must be separated by a whitespace character.\n\n1.1.1.1 Cloudflare\n1.0.0.1 Cloudflare"
 udf="# DNS LIST FOR DEFAULT DNS WITHOUT DNSCRYPT\n# Please enter the DNS IP address in column 1.\n# You may add a description in column 2.\n# Columns must be separated by a whitespace character.\n\nempty empty"
 
 ! [[ -f "$fbloc" ]] && echo -e "$dfb" > "$fbloc"
@@ -1295,17 +1295,23 @@ if [[ $localdns ]] ; then
 else
 	defaultdns=$(cat "$udfloc" | grep -v -e "^#" -e "^$" -e "^empty empty$" | awk '!seen[$0]++')
 fi
+nodefault=false
 if ! [[ $defaultdns ]] ; then
-	UDEFAULT="empty"
-	UDEFAULTS=""
+	if ! [[ $localdns ]] ; then
+		UDEFAULT="1.1.1.1 1.0.0.1"
+		UDEFAULTS="1.0.0.1 1.1.1.1"
+		nodefault=true
+	else
+		UDEFAULT="empty"
+		UDEFAULTS=""
+	fi
 else
 	udfips=$(echo "$defaultdns" | awk '{print $1}')
 	udfipss=$(echo "$udfips" | sort)
 	UDEFAULT=$(echo "$udfips" | xargs)
 	UDEFAULTS=$(echo "$udfipss" | xargs)
+	[[ $localdns ]] && UDEFAULT="${UDEFAULT} $localdns"
 fi
-
-[[ $localdns ]] && UDEFAULT="${UDEFAULT} $localdns"
 
 proxystatus=$(pgrep -U 0 "dnscrypt-proxy")
 ! [[ $proxystatus ]] && proxy=false || proxy=true
@@ -1788,7 +1794,15 @@ _fbmenu () {
 }
 
 _dfmenu () {
-	echo "--Configured Resolvers | size=11 color=gray"
+	if $nodefault ; then
+		echo "--Preconfigured Resolvers | size=11 color=gray"
+		for precfg in ${UDEFAULTS}
+		do
+			echo "$precfg"
+		done
+	else
+		echo "--Configured Resolvers | size=11 color=gray"
+	fi
 	if ! [[ $udfipss ]] ; then
 		echo "--None"
 	else
