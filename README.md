@@ -27,6 +27,7 @@
 ## Installation
 * install `dnscrypt-proxy` version 2, e.g. with **[Homebrew](https://brew.sh)** (recommended): `brew install dnscrypt-proxy`
   * configure `dnscrypt-proxy` by editing the `.toml` configuration file
+  * start `dnscrypt-proxy`, for example with Homebrew run `sudo brew services start dnscrypt-proxy`
 * download the latest version of **BitBar**, currently at **[v2.0.0 beta 10](https://github.com/matryer/bitbar/releases/tag/v2.0.0-beta10)**
   * install and configure BitBar
   * quit BitBar
