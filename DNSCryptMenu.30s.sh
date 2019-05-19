@@ -1518,14 +1518,16 @@ _current_resolvers () {
 
 _displayname () {
 	resolvers="$1"
+    allips=$(echo "$DNSCRYPT_PROXY_IPS $ADDITIONAL_IPS" | xargs -n1 | sort -g | xargs)
+    defips=$(echo "$UDEFAULTS" | xargs -n1 | sort -g | xargs)
 	if [[ $resolvers == $DNSCRYPT_PROXY_IPS ]] ; then
 		echo "DNSCrypt"
-	elif [[ $resolvers == "$DNSCRYPT_PROXY_IPS $ADDITIONAL_IPS" ]] ; then
+	elif [[ $resolvers == $allips ]] ; then
 		echo "DNSCrypt + Fallback"
-	elif [[ $resolvers == $UDEFAULTS ]] ; then
+	elif [[ $resolvers == *"$defips"* ]] ; then
 		if [[ $UDEFAULTS == $DNSCRYPT_PROXY_IPS ]] ; then
 			echo "DNSCrypt"
-		elif [[ $UDEFAULTS == "$DNSCRYPT_PROXY_IPS $ADDITIONAL_IPS" ]] ; then
+		elif [[ $defips == $allips ]] ; then
 			echo "DNSCrypt + Fallback"
 		else
 			echo "Default DNS"
@@ -1535,7 +1537,7 @@ _displayname () {
 	fi
 }
 
-current_resolvers=$(_current_resolvers)
+current_resolvers=$(_service_resolvers "$service" | xargs -n1 | sort -g | xargs)
 setting=$(_displayname "$current_resolvers")
 
 if $proxy ; then
